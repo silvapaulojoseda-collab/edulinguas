@@ -53,7 +53,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             return (
               <Link
                 key={n.to}
-                to={n.to}
+                to={n.to as string}
                 className={`group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all
                   ${Active ? "bg-sidebar-accent text-sidebar-accent-foreground" : "text-sidebar-foreground/75 hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground"}`}
               >
