@@ -1,4 +1,4 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import {
   LayoutDashboard,
   Users,
@@ -12,8 +12,14 @@ import {
   Sun,
   Search,
   Bell,
+  CheckCircle2,
+  AlertTriangle,
+  Info,
+  XCircle,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useAlunos, useNotificacoes } from "@/hooks/use-edu-data";
+import { marcarNotificacoesLidas } from "@/lib/edu-api";
 
 const nav: { to: string; label: string; icon: typeof LayoutDashboard; accent?: boolean }[] = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -83,14 +89,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </div>
             <span className="font-display font-bold">EduLinguas <span className="text-ai">AI</span></span>
           </div>
-          <div className="flex-1 max-w-md hidden md:flex items-center gap-2 px-3 h-10 rounded-xl bg-muted/60 border border-border">
-            <Search className="size-4 text-muted-foreground" />
-            <input
-              placeholder="Buscar aluno, turma, avaliação..."
-              className="bg-transparent text-sm flex-1 outline-none placeholder:text-muted-foreground"
-            />
-            <kbd className="text-[10px] text-muted-foreground border border-border rounded px-1.5 py-0.5">⌘K</kbd>
-          </div>
+
+          <GlobalSearch />
+
           <div className="flex-1 md:hidden" />
           <button
             onClick={() => setDark((d) => !d)}
@@ -99,10 +100,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           >
             {dark ? <Sun className="size-4" /> : <Moon className="size-4" />}
           </button>
-          <button className="size-10 grid place-items-center rounded-xl hover:bg-muted transition-colors relative">
-            <Bell className="size-4" />
-            <span className="absolute top-2.5 right-2.5 size-1.5 rounded-full bg-ai" />
-          </button>
+
+          <NotificationsBell />
+
           <div className="flex items-center gap-2.5 pl-2 border-l border-border">
             <div className="size-9 rounded-full bg-gradient-to-br from-primary to-ai grid place-items-center text-primary-foreground text-xs font-bold">
               MR
@@ -118,6 +118,201 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           {children}
         </main>
       </div>
+    </div>
+  );
+}
+
+function GlobalSearch() {
+  const { alunos } = useAlunos();
+  const [q, setQ] = useState("");
+  const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        (document.getElementById("global-search") as HTMLInputElement)?.focus();
+      }
+      if (e.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
+  }, []);
+
+  const term = q.trim().toLowerCase();
+  const turmas = Array.from(new Set(alunos.map((a) => a.turma)));
+  const turmasMatch = term ? turmas.filter((t) => t.toLowerCase().includes(term)).slice(0, 4) : [];
+  const alunosMatch = term
+    ? alunos
+        .filter(
+          (a) =>
+            a.nome.toLowerCase().includes(term) ||
+            (a.matricula ?? "").includes(term),
+        )
+        .slice(0, 6)
+    : [];
+  const avaliacoes = ["Diagnóstica 2026.1", "Simulado SPAECE", "Bimestral L2"];
+  const avaliacoesMatch = term ? avaliacoes.filter((a) => a.toLowerCase().includes(term)) : [];
+
+  const hasResults = turmasMatch.length + alunosMatch.length + avaliacoesMatch.length > 0;
+
+  return (
+    <div className="flex-1 max-w-md hidden md:block relative" ref={ref}>
+      <div className="flex items-center gap-2 px-3 h-10 rounded-xl bg-muted/60 border border-border">
+        <Search className="size-4 text-muted-foreground" />
+        <input
+          id="global-search"
+          value={q}
+          onChange={(e) => { setQ(e.target.value); setOpen(true); }}
+          onFocus={() => setOpen(true)}
+          placeholder="Buscar aluno, turma, avaliação..."
+          className="bg-transparent text-sm flex-1 outline-none placeholder:text-muted-foreground"
+        />
+        <kbd className="text-[10px] text-muted-foreground border border-border rounded px-1.5 py-0.5">⌘K</kbd>
+      </div>
+
+      {open && term && (
+        <div className="absolute top-12 left-0 right-0 rounded-xl border border-border bg-card shadow-2xl overflow-hidden z-40 max-h-[70vh] overflow-y-auto">
+          {!hasResults && (
+            <div className="p-6 text-center text-sm text-muted-foreground">Nenhum resultado para "{q}"</div>
+          )}
+          {alunosMatch.length > 0 && (
+            <SearchGroup title="Alunos">
+              {alunosMatch.map((a) => (
+                <button
+                  key={a.id}
+                  onClick={() => { navigate({ to: "/alunos" }); setOpen(false); setQ(""); }}
+                  className="w-full text-left px-3 py-2 flex items-center gap-3 hover:bg-muted"
+                >
+                  <div className="size-7 rounded-full bg-gradient-to-br from-primary to-ai grid place-items-center text-[9px] font-bold text-primary-foreground">
+                    {a.nome.split(" ").map((p) => p[0]).slice(0, 2).join("")}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm truncate">{a.nome}</div>
+                    <div className="text-[11px] text-muted-foreground">{a.turma} · {a.matricula}</div>
+                  </div>
+                  <span className="text-xs font-semibold">{(a.media_geral ?? 0).toFixed(1)}</span>
+                </button>
+              ))}
+            </SearchGroup>
+          )}
+          {turmasMatch.length > 0 && (
+            <SearchGroup title="Turmas">
+              {turmasMatch.map((t) => (
+                <button
+                  key={t}
+                  onClick={() => { navigate({ to: "/alunos" }); setOpen(false); setQ(""); }}
+                  className="w-full text-left px-3 py-2 hover:bg-muted text-sm flex items-center gap-2"
+                >
+                  <Users className="size-3.5 text-muted-foreground" /> {t}
+                </button>
+              ))}
+            </SearchGroup>
+          )}
+          {avaliacoesMatch.length > 0 && (
+            <SearchGroup title="Avaliações">
+              {avaliacoesMatch.map((a) => (
+                <button
+                  key={a}
+                  onClick={() => { navigate({ to: "/avaliacoes" }); setOpen(false); setQ(""); }}
+                  className="w-full text-left px-3 py-2 hover:bg-muted text-sm flex items-center gap-2"
+                >
+                  <ClipboardList className="size-3.5 text-muted-foreground" /> {a}
+                </button>
+              ))}
+            </SearchGroup>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SearchGroup({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="py-1">
+      <div className="px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{title}</div>
+      {children}
+    </div>
+  );
+}
+
+function NotificationsBell() {
+  const { items, naoLidas, reload } = useNotificacoes();
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
+  }, []);
+
+  const iconFor = (t: string) =>
+    t === "sucesso" ? CheckCircle2 : t === "alerta" ? AlertTriangle : t === "erro" ? XCircle : Info;
+  const colorFor = (t: string) =>
+    t === "sucesso" ? "text-success" : t === "alerta" ? "text-warning" : t === "erro" ? "text-destructive" : "text-primary";
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="size-10 grid place-items-center rounded-xl hover:bg-muted transition-colors relative"
+      >
+        <Bell className="size-4" />
+        {naoLidas > 0 && (
+          <span className="absolute top-1.5 right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-ai text-ai-foreground text-[10px] font-bold grid place-items-center">
+            {naoLidas}
+          </span>
+        )}
+      </button>
+
+      {open && (
+        <div className="absolute right-0 top-12 w-80 rounded-xl border border-border bg-card shadow-2xl z-40 overflow-hidden">
+          <div className="px-4 py-3 border-b border-border flex items-center justify-between">
+            <div className="font-semibold text-sm">Notificações</div>
+            {naoLidas > 0 && (
+              <button
+                onClick={async () => { await marcarNotificacoesLidas(); reload(); }}
+                className="text-xs text-primary font-semibold"
+              >
+                Marcar todas como lidas
+              </button>
+            )}
+          </div>
+          <ul className="max-h-96 overflow-y-auto">
+            {items.length === 0 && (
+              <li className="px-4 py-6 text-center text-sm text-muted-foreground">Sem notificações</li>
+            )}
+            {items.map((n) => {
+              const Icon = iconFor(n.tipo);
+              return (
+                <li key={n.id} className={`px-4 py-3 border-b border-border/60 flex gap-3 ${!n.lida ? "bg-muted/40" : ""}`}>
+                  <Icon className={`size-4 mt-0.5 shrink-0 ${colorFor(n.tipo)}`} />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm">{n.mensagem}</div>
+                    <div className="text-[10px] text-muted-foreground mt-0.5">
+                      {new Date(n.criada_em).toLocaleString("pt-BR")}
+                    </div>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }
