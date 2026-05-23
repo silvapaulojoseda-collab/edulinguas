@@ -14,7 +14,108 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      alunos: {
+        Row: {
+          created_at: string
+          id: string
+          matricula: string | null
+          media_geral: number | null
+          nome: string
+          progresso_spaece: number | null
+          turma: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          matricula?: string | null
+          media_geral?: number | null
+          nome: string
+          progresso_spaece?: number | null
+          turma: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          matricula?: string | null
+          media_geral?: number | null
+          nome?: string
+          progresso_spaece?: number | null
+          turma?: string
+        }
+        Relationships: []
+      }
+      gabaritos_ocr: {
+        Row: {
+          data: string
+          id: string
+          status: string
+          total_cartoes: number
+          turma: string
+        }
+        Insert: {
+          data?: string
+          id?: string
+          status: string
+          total_cartoes?: number
+          turma: string
+        }
+        Update: {
+          data?: string
+          id?: string
+          status?: string
+          total_cartoes?: number
+          turma?: string
+        }
+        Relationships: []
+      }
+      notificacoes: {
+        Row: {
+          criada_em: string
+          id: string
+          lida: boolean
+          mensagem: string
+          tipo: string
+        }
+        Insert: {
+          criada_em?: string
+          id?: string
+          lida?: boolean
+          mensagem: string
+          tipo: string
+        }
+        Update: {
+          criada_em?: string
+          id?: string
+          lida?: boolean
+          mensagem?: string
+          tipo?: string
+        }
+        Relationships: []
+      }
+      pareceres_ia: {
+        Row: {
+          data_criacao: string
+          disciplina: string
+          id: string
+          texto_parecer: string
+          turma: string
+        }
+        Insert: {
+          data_criacao?: string
+          disciplina: string
+          id?: string
+          texto_parecer: string
+          turma: string
+        }
+        Update: {
+          data_criacao?: string
+          disciplina?: string
+          id?: string
+          texto_parecer?: string
+          turma?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
