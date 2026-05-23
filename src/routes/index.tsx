@@ -238,6 +238,14 @@ function Dashboard() {
   );
 }
 
+function relativeTime(iso: string) {
+  const d = (Date.now() - new Date(iso).getTime()) / 1000;
+  if (d < 60) return "agora";
+  if (d < 3600) return `${Math.floor(d / 60)} min`;
+  if (d < 86400) return `${Math.floor(d / 3600)}h`;
+  return `${Math.floor(d / 86400)}d`;
+}
+
 function Kpi({ icon: Icon, label, value, delta, accent }: { icon: typeof Users; label: string; value: string; delta: string; accent?: boolean }) {
   const positive = !delta.startsWith("-");
   return (
