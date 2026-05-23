@@ -1,7 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/layout/AppShell";
-import { Sparkles, Send, FileDown, Lightbulb, Target } from "lucide-react";
+import { Sparkles, Send, FileDown, Lightbulb, Target, Loader2, Wand2 } from "lucide-react";
 import { DESCRITORES } from "@/lib/seed";
+import { useEffect, useState } from "react";
+import { gerarParecerIA, type Parecer } from "@/lib/edu-api";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/ia")({
   head: () => ({
@@ -13,20 +17,68 @@ export const Route = createFileRoute("/ia")({
   component: IA,
 });
 
+const TURMAS = ["2º Informática", "1º Administração", "1º Hospedagem", "1º Informática"];
+const DISCIPLINAS = ["Português", "Inglês", "Espanhol"];
+
 function IA() {
+  const [turma, setTurma] = useState(TURMAS[0]);
+  const [disciplina, setDisciplina] = useState(DISCIPLINAS[0]);
+  const [loading, setLoading] = useState(false);
+  const [parecer, setParecer] = useState<Parecer | null>(null);
+
+  useEffect(() => {
+    supabase
+      .from("pareceres_ia")
+      .select("*")
+      .eq("turma", turma)
+      .eq("disciplina", disciplina)
+      .order("data_criacao", { ascending: false })
+      .limit(1)
+      .maybeSingle()
+      .then(({ data }) => setParecer((data as Parecer) ?? null));
+  }, [turma, disciplina]);
+
+  async function gerar() {
+    setLoading(true);
+    try {
+      const novo = await gerarParecerIA(turma, disciplina);
+      setParecer(novo);
+      toast.success("Parecer gerado e salvo");
+    } catch (e) {
+      toast.error("Falha ao gerar parecer");
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <AppShell>
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
           <div className="inline-flex items-center gap-2 ai-chip px-3 py-1 rounded-full text-xs font-semibold">
             <Sparkles className="size-3.5" /> Engine IA Pedagógica
           </div>
-          <h1 className="mt-3 text-3xl font-display font-bold tracking-tight">Parecer da turma 2º Informática</h1>
-          <p className="text-muted-foreground text-sm mt-1">Gerado em 22 mai 2026 · Modelo educacional v2.4</p>
+          <h1 className="mt-3 text-3xl font-display font-bold tracking-tight">Parecer da turma {turma}</h1>
+          <p className="text-muted-foreground text-sm mt-1">
+            {parecer ? `Gerado em ${new Date(parecer.data_criacao).toLocaleString("pt-BR")} · ${parecer.disciplina}` : "Nenhum parecer gerado ainda para essa combinação"}
+          </p>
         </div>
-        <button className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-card border border-border text-sm font-semibold">
-          <FileDown className="size-4" /> Exportar PDF
-        </button>
+        <div className="flex gap-2 flex-wrap">
+          <select value={turma} onChange={(e) => setTurma(e.target.value)} className="h-10 px-3 rounded-xl bg-card border border-border text-sm">
+            {TURMAS.map((t) => <option key={t}>{t}</option>)}
+          </select>
+          <select value={disciplina} onChange={(e) => setDisciplina(e.target.value)} className="h-10 px-3 rounded-xl bg-card border border-border text-sm">
+            {DISCIPLINAS.map((d) => <option key={d}>{d}</option>)}
+          </select>
+          <button onClick={gerar} disabled={loading} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-ai text-ai-foreground text-sm font-semibold disabled:opacity-60">
+            {loading ? <Loader2 className="size-4 animate-spin" /> : <Wand2 className="size-4" />}
+            {loading ? "Gerando..." : "Gerar parecer com IA"}
+          </button>
+          <button className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-card border border-border text-sm font-semibold">
+            <FileDown className="size-4" /> Exportar PDF
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
@@ -35,19 +87,12 @@ function IA() {
             <h2 className="font-display font-bold text-lg flex items-center gap-2">
               <Lightbulb className="size-5 text-ai" /> Análise pedagógica
             </h2>
-            <div className="mt-3 space-y-3 text-sm leading-relaxed">
-              <p>
-                A turma <strong>2º Informática</strong> demonstra <strong className="text-warning">desempenho heterogêneo</strong> em Língua Portuguesa, com média de <strong>54%</strong> — abaixo da meta SPAECE para a série.
-              </p>
-              <p>
-                Os principais gargalos estão em <strong>inferência textual</strong> (D5) e <strong>interpretação de gráficos e tabelas</strong> (D12). Ambos os descritores aparecem em <span className="text-ai font-semibold">68% das questões erradas</span>.
-              </p>
-              <p>
-                Em contrapartida, a turma demonstra <strong className="text-success">bom domínio</strong> em compreensão auditiva (L2) e análise sintática, indicando potencial para trabalhar interpretação em camadas.
-              </p>
-              <p className="border-l-2 border-ai pl-4 italic text-muted-foreground">
-                "Recomenda-se reforço focado nos descritores D5 e D12, com uso de textos midiáticos e atividades de leitura inferencial em duplas heterogêneas."
-              </p>
+            <div className="mt-3 text-sm leading-relaxed whitespace-pre-wrap">
+              {parecer ? parecer.texto_parecer : (
+                <div className="text-muted-foreground py-8 text-center">
+                  Nenhum parecer ainda. Clique em <strong className="text-ai">Gerar parecer com IA</strong> para que o sistema analise os descritores críticos da turma e produza um relatório pedagógico estruturado.
+                </div>
+              )}
             </div>
           </article>
 
