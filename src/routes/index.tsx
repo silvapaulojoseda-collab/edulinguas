@@ -7,9 +7,10 @@ import {
 } from "recharts";
 import {
   TrendingUp, TrendingDown, Users, Sparkles, ArrowUpRight, AlertTriangle, Trophy,
-  ScanLine, FileBarChart, Activity,
+  ScanLine, FileBarChart, Activity, CheckCircle2, Info, XCircle,
 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { useNotificacoes } from "@/hooks/use-edu-data";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -31,6 +32,7 @@ function Dashboard() {
   const stats = turmaStats();
   const turmasData = TURMAS.map((t) => ({ turma: t.replace(/^\dº\s/, ""), ano: t[0], ...turmaStats(t) }));
   const radarData = DISCIPLINAS.map((d) => ({ subject: d.label, A: Math.round(stats[d.key as keyof typeof stats] as number) }));
+  const { items: notifs } = useNotificacoes();
 
   return (
     <AppShell>
@@ -187,22 +189,25 @@ function Dashboard() {
           <div className="rounded-2xl border border-border bg-card p-5">
             <h2 className="font-display font-semibold text-lg">Atividade recente</h2>
             <ul className="mt-4 space-y-3">
-              {[
-                { i: ScanLine, t: "OCR processou 42 cartões — 1º Administração", time: "agora", color: "primary" },
-                { i: Sparkles, t: "IA gerou parecer pedagógico de Português 2º ano", time: "12 min", color: "ai" },
-                { i: AlertTriangle, t: "Alerta: 8 alunos com dupla marcação detectada", time: "1h", color: "warning" },
-                { i: FileBarChart, t: "Relatório consolidado exportado em PDF", time: "3h", color: "primary" },
-              ].map((a, i) => (
-                <li key={i} className="flex items-center gap-3 p-3 rounded-xl hover:bg-muted/60 transition-colors">
-                  <div className={`size-9 rounded-lg grid place-items-center bg-${a.color}/15 text-${a.color}`}>
-                    <a.i className="size-4" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm truncate">{a.t}</div>
-                  </div>
-                  <span className="text-xs text-muted-foreground shrink-0">{a.time}</span>
-                </li>
-              ))}
+              {notifs.length === 0 && (
+                <li className="text-sm text-muted-foreground p-3">Sem atividade ainda. Processe um OCR ou gere um parecer.</li>
+              )}
+              {notifs.slice(0, 6).map((n) => {
+                const Icon = n.tipo === "sucesso" ? CheckCircle2 : n.tipo === "alerta" ? AlertTriangle : n.tipo === "erro" ? XCircle : n.tipo === "info" ? Info : Sparkles;
+                const color = n.tipo === "sucesso" ? "success" : n.tipo === "alerta" ? "warning" : n.tipo === "erro" ? "destructive" : "primary";
+                const ago = relativeTime(n.criada_em);
+                return (
+                  <li key={n.id} className="flex items-center gap-3 p-3 rounded-xl hover:bg-muted/60 transition-colors">
+                    <div className={`size-9 rounded-lg grid place-items-center bg-${color}/15 text-${color}`}>
+                      <Icon className="size-4" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm truncate">{n.mensagem}</div>
+                    </div>
+                    <span className="text-xs text-muted-foreground shrink-0">{ago}</span>
+                  </li>
+                );
+              })}
             </ul>
           </div>
 
