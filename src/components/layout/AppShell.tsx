@@ -32,10 +32,22 @@ const nav: { to: string; label: string; icon: typeof LayoutDashboard; accent?: b
 export function AppShell({ children }: { children: React.ReactNode }) {
   const path = useRouterState({ select: (s) => s.location.pathname });
   const [dark, setDark] = useState(true);
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", dark);
   }, [dark]);
+
+  useEffect(() => {
+    if (!user) navigate({ to: "/login" });
+  }, [user, navigate]);
+
+  if (!user) return null;
+
+  const papelLabel = user.papel === "gestor" ? "Gestora" : user.papel === "professor" ? "Professor" : "Coordenador";
+
+
 
   return (
     <div className="min-h-screen flex">
