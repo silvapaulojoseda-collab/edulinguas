@@ -1,4 +1,4 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import {
   LayoutDashboard,
   Users,
@@ -12,12 +12,16 @@ import {
   Sun,
   Search,
   Bell,
+  LogOut,
+  UserCog,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useAuth } from "@/lib/auth";
 
 const nav: { to: string; label: string; icon: typeof LayoutDashboard; accent?: boolean }[] = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
   { to: "/alunos", label: "Alunos", icon: Users },
+  { to: "/professores", label: "Professores", icon: UserCog },
   { to: "/avaliacoes", label: "Avaliações", icon: ClipboardList },
   { to: "/ocr", label: "Leitura OCR", icon: ScanLine },
   { to: "/ia", label: "IA Pedagógica", icon: Sparkles, accent: true },
