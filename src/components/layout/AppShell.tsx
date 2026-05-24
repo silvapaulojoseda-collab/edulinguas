@@ -1,4 +1,4 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import {
   LayoutDashboard,
   Users,
@@ -12,12 +12,16 @@ import {
   Sun,
   Search,
   Bell,
+  LogOut,
+  UserCog,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useAuth } from "@/lib/auth";
 
 const nav: { to: string; label: string; icon: typeof LayoutDashboard; accent?: boolean }[] = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
   { to: "/alunos", label: "Alunos", icon: Users },
+  { to: "/professores", label: "Professores", icon: UserCog },
   { to: "/avaliacoes", label: "Avaliações", icon: ClipboardList },
   { to: "/ocr", label: "Leitura OCR", icon: ScanLine },
   { to: "/ia", label: "IA Pedagógica", icon: Sparkles, accent: true },
@@ -28,10 +32,22 @@ const nav: { to: string; label: string; icon: typeof LayoutDashboard; accent?: b
 export function AppShell({ children }: { children: React.ReactNode }) {
   const path = useRouterState({ select: (s) => s.location.pathname });
   const [dark, setDark] = useState(true);
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", dark);
   }, [dark]);
+
+  useEffect(() => {
+    if (!user) navigate({ to: "/login" });
+  }, [user, navigate]);
+
+  if (!user) return null;
+
+  const papelLabel = user.papel === "gestor" ? "Gestora" : user.papel === "professor" ? "Professor" : "Coordenador";
+
+
 
   return (
     <div className="min-h-screen flex">
@@ -105,12 +121,20 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </button>
           <div className="flex items-center gap-2.5 pl-2 border-l border-border">
             <div className="size-9 rounded-full bg-gradient-to-br from-primary to-ai grid place-items-center text-primary-foreground text-xs font-bold">
-              MR
+              {user.iniciais}
             </div>
             <div className="hidden sm:block">
-              <div className="text-xs font-semibold leading-tight">Profa. Marina R.</div>
-              <div className="text-[10px] text-muted-foreground">EEEP Profa. Maria Dolores</div>
+              <div className="text-xs font-semibold leading-tight">{user.nome}</div>
+              <div className="text-[10px] text-muted-foreground">{papelLabel} · {user.escola}</div>
             </div>
+            <button
+              onClick={() => { logout(); navigate({ to: "/login" }); }}
+              className="size-9 grid place-items-center rounded-lg hover:bg-muted transition-colors ml-1"
+              aria-label="Sair"
+              title="Sair"
+            >
+              <LogOut className="size-4 text-muted-foreground" />
+            </button>
           </div>
         </header>
 

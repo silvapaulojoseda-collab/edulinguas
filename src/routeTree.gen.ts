@@ -10,7 +10,9 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as RelatoriosRouteImport } from './routes/relatorios'
+import { Route as ProfessoresRouteImport } from './routes/professores'
 import { Route as OcrRouteImport } from './routes/ocr'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as IaRouteImport } from './routes/ia'
 import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as AvaliacoesRouteImport } from './routes/avaliacoes'
@@ -22,9 +24,19 @@ const RelatoriosRoute = RelatoriosRouteImport.update({
   path: '/relatorios',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProfessoresRoute = ProfessoresRouteImport.update({
+  id: '/professores',
+  path: '/professores',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OcrRoute = OcrRouteImport.update({
   id: '/ocr',
   path: '/ocr',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IaRoute = IaRouteImport.update({
@@ -59,7 +71,9 @@ export interface FileRoutesByFullPath {
   '/avaliacoes': typeof AvaliacoesRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/ia': typeof IaRoute
+  '/login': typeof LoginRoute
   '/ocr': typeof OcrRoute
+  '/professores': typeof ProfessoresRoute
   '/relatorios': typeof RelatoriosRoute
 }
 export interface FileRoutesByTo {
@@ -68,7 +82,9 @@ export interface FileRoutesByTo {
   '/avaliacoes': typeof AvaliacoesRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/ia': typeof IaRoute
+  '/login': typeof LoginRoute
   '/ocr': typeof OcrRoute
+  '/professores': typeof ProfessoresRoute
   '/relatorios': typeof RelatoriosRoute
 }
 export interface FileRoutesById {
@@ -78,7 +94,9 @@ export interface FileRoutesById {
   '/avaliacoes': typeof AvaliacoesRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/ia': typeof IaRoute
+  '/login': typeof LoginRoute
   '/ocr': typeof OcrRoute
+  '/professores': typeof ProfessoresRoute
   '/relatorios': typeof RelatoriosRoute
 }
 export interface FileRouteTypes {
@@ -89,7 +107,9 @@ export interface FileRouteTypes {
     | '/avaliacoes'
     | '/configuracoes'
     | '/ia'
+    | '/login'
     | '/ocr'
+    | '/professores'
     | '/relatorios'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -98,7 +118,9 @@ export interface FileRouteTypes {
     | '/avaliacoes'
     | '/configuracoes'
     | '/ia'
+    | '/login'
     | '/ocr'
+    | '/professores'
     | '/relatorios'
   id:
     | '__root__'
@@ -107,7 +129,9 @@ export interface FileRouteTypes {
     | '/avaliacoes'
     | '/configuracoes'
     | '/ia'
+    | '/login'
     | '/ocr'
+    | '/professores'
     | '/relatorios'
   fileRoutesById: FileRoutesById
 }
@@ -117,7 +141,9 @@ export interface RootRouteChildren {
   AvaliacoesRoute: typeof AvaliacoesRoute
   ConfiguracoesRoute: typeof ConfiguracoesRoute
   IaRoute: typeof IaRoute
+  LoginRoute: typeof LoginRoute
   OcrRoute: typeof OcrRoute
+  ProfessoresRoute: typeof ProfessoresRoute
   RelatoriosRoute: typeof RelatoriosRoute
 }
 
@@ -130,11 +156,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RelatoriosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/professores': {
+      id: '/professores'
+      path: '/professores'
+      fullPath: '/professores'
+      preLoaderRoute: typeof ProfessoresRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ocr': {
       id: '/ocr'
       path: '/ocr'
       fullPath: '/ocr'
       preLoaderRoute: typeof OcrRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ia': {
@@ -181,7 +221,9 @@ const rootRouteChildren: RootRouteChildren = {
   AvaliacoesRoute: AvaliacoesRoute,
   ConfiguracoesRoute: ConfiguracoesRoute,
   IaRoute: IaRoute,
+  LoginRoute: LoginRoute,
   OcrRoute: OcrRoute,
+  ProfessoresRoute: ProfessoresRoute,
   RelatoriosRoute: RelatoriosRoute,
 }
 export const routeTree = rootRouteImport
