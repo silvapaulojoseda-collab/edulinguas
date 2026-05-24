@@ -121,12 +121,20 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </button>
           <div className="flex items-center gap-2.5 pl-2 border-l border-border">
             <div className="size-9 rounded-full bg-gradient-to-br from-primary to-ai grid place-items-center text-primary-foreground text-xs font-bold">
-              MR
+              {user.iniciais}
             </div>
             <div className="hidden sm:block">
-              <div className="text-xs font-semibold leading-tight">Profa. Marina R.</div>
-              <div className="text-[10px] text-muted-foreground">EEEP Profa. Maria Dolores</div>
+              <div className="text-xs font-semibold leading-tight">{user.nome}</div>
+              <div className="text-[10px] text-muted-foreground">{papelLabel} · {user.escola}</div>
             </div>
+            <button
+              onClick={() => { logout(); navigate({ to: "/login" }); }}
+              className="size-9 grid place-items-center rounded-lg hover:bg-muted transition-colors ml-1"
+              aria-label="Sair"
+              title="Sair"
+            >
+              <LogOut className="size-4 text-muted-foreground" />
+            </button>
           </div>
         </header>
 
