@@ -17,114 +17,586 @@ export type Database = {
       alunos: {
         Row: {
           created_at: string
+          escola_id: string | null
           id: string
           matricula: string | null
           media_geral: number | null
           nome: string
           progresso_spaece: number | null
           turma: string
+          turma_id: string | null
         }
         Insert: {
           created_at?: string
+          escola_id?: string | null
           id?: string
           matricula?: string | null
           media_geral?: number | null
           nome: string
           progresso_spaece?: number | null
           turma: string
+          turma_id?: string | null
         }
         Update: {
           created_at?: string
+          escola_id?: string | null
           id?: string
           matricula?: string | null
           media_geral?: number | null
           nome?: string
           progresso_spaece?: number | null
           turma?: string
+          turma_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "alunos_escola_id_fkey"
+            columns: ["escola_id"]
+            isOneToOne: false
+            referencedRelation: "escolas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "alunos_turma_id_fkey"
+            columns: ["turma_id"]
+            isOneToOne: false
+            referencedRelation: "turmas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      avaliacoes: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          data: string
+          descritores: string[]
+          disciplina: string
+          escola_id: string
+          id: string
+          num_questoes: number
+          tipo: string
+          titulo: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          data?: string
+          descritores?: string[]
+          disciplina: string
+          escola_id: string
+          id?: string
+          num_questoes?: number
+          tipo?: string
+          titulo: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          data?: string
+          descritores?: string[]
+          disciplina?: string
+          escola_id?: string
+          id?: string
+          num_questoes?: number
+          tipo?: string
+          titulo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "avaliacoes_escola_id_fkey"
+            columns: ["escola_id"]
+            isOneToOne: false
+            referencedRelation: "escolas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cartoes_ocr: {
+        Row: {
+          acertos: number | null
+          aluno_id: string | null
+          created_at: string
+          file_path: string
+          id: string
+          lote_id: string
+          marcacoes: Json | null
+          motivo_erro: string | null
+          qr_lido: string | null
+          status: string
+          total: number | null
+        }
+        Insert: {
+          acertos?: number | null
+          aluno_id?: string | null
+          created_at?: string
+          file_path: string
+          id?: string
+          lote_id: string
+          marcacoes?: Json | null
+          motivo_erro?: string | null
+          qr_lido?: string | null
+          status?: string
+          total?: number | null
+        }
+        Update: {
+          acertos?: number | null
+          aluno_id?: string | null
+          created_at?: string
+          file_path?: string
+          id?: string
+          lote_id?: string
+          marcacoes?: Json | null
+          motivo_erro?: string | null
+          qr_lido?: string | null
+          status?: string
+          total?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cartoes_ocr_aluno_id_fkey"
+            columns: ["aluno_id"]
+            isOneToOne: false
+            referencedRelation: "alunos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cartoes_ocr_lote_id_fkey"
+            columns: ["lote_id"]
+            isOneToOne: false
+            referencedRelation: "lotes_ocr"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      escolas: {
+        Row: {
+          cidade: string | null
+          created_at: string
+          id: string
+          inep: string | null
+          nome: string
+          uf: string | null
+        }
+        Insert: {
+          cidade?: string | null
+          created_at?: string
+          id?: string
+          inep?: string | null
+          nome: string
+          uf?: string | null
+        }
+        Update: {
+          cidade?: string | null
+          created_at?: string
+          id?: string
+          inep?: string | null
+          nome?: string
+          uf?: string | null
         }
         Relationships: []
       }
-      gabaritos_ocr: {
+      gabaritos: {
         Row: {
-          data: string
+          alternativa_correta: string
+          avaliacao_id: string
+          descritor: string | null
           id: string
-          status: string
-          total_cartoes: number
-          turma: string
+          ordem: number
         }
         Insert: {
-          data?: string
+          alternativa_correta: string
+          avaliacao_id: string
+          descritor?: string | null
           id?: string
-          status: string
-          total_cartoes?: number
-          turma: string
+          ordem: number
         }
         Update: {
-          data?: string
+          alternativa_correta?: string
+          avaliacao_id?: string
+          descritor?: string | null
           id?: string
-          status?: string
-          total_cartoes?: number
-          turma?: string
+          ordem?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "gabaritos_avaliacao_id_fkey"
+            columns: ["avaliacao_id"]
+            isOneToOne: false
+            referencedRelation: "avaliacoes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lotes_ocr: {
+        Row: {
+          avaliacao_id: string
+          created_at: string
+          criado_por: string | null
+          erros: number
+          escola_id: string
+          id: string
+          processados: number
+          status: string
+          total: number
+          turma_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          avaliacao_id: string
+          created_at?: string
+          criado_por?: string | null
+          erros?: number
+          escola_id: string
+          id?: string
+          processados?: number
+          status?: string
+          total?: number
+          turma_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          avaliacao_id?: string
+          created_at?: string
+          criado_por?: string | null
+          erros?: number
+          escola_id?: string
+          id?: string
+          processados?: number
+          status?: string
+          total?: number
+          turma_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lotes_ocr_avaliacao_id_fkey"
+            columns: ["avaliacao_id"]
+            isOneToOne: false
+            referencedRelation: "avaliacoes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lotes_ocr_escola_id_fkey"
+            columns: ["escola_id"]
+            isOneToOne: false
+            referencedRelation: "escolas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lotes_ocr_turma_id_fkey"
+            columns: ["turma_id"]
+            isOneToOne: false
+            referencedRelation: "turmas"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       notificacoes: {
         Row: {
           criada_em: string
+          escola_id: string | null
           id: string
           lida: boolean
+          link: string | null
           mensagem: string
           tipo: string
+          user_id: string
         }
         Insert: {
           criada_em?: string
+          escola_id?: string | null
           id?: string
           lida?: boolean
+          link?: string | null
           mensagem: string
           tipo: string
+          user_id: string
         }
         Update: {
           criada_em?: string
+          escola_id?: string | null
           id?: string
           lida?: boolean
+          link?: string | null
           mensagem?: string
           tipo?: string
+          user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "notificacoes_escola_id_fkey"
+            columns: ["escola_id"]
+            isOneToOne: false
+            referencedRelation: "escolas"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       pareceres_ia: {
         Row: {
-          data_criacao: string
-          disciplina: string
+          avaliacao_id: string | null
+          created_at: string
+          dados: Json | null
+          disciplina: string | null
+          escola_id: string
+          gerado_por: string | null
           id: string
-          texto_parecer: string
-          turma: string
+          modelo: string
+          texto: string
+          turma_id: string | null
         }
         Insert: {
-          data_criacao?: string
-          disciplina: string
+          avaliacao_id?: string | null
+          created_at?: string
+          dados?: Json | null
+          disciplina?: string | null
+          escola_id: string
+          gerado_por?: string | null
           id?: string
-          texto_parecer: string
-          turma: string
+          modelo?: string
+          texto: string
+          turma_id?: string | null
         }
         Update: {
-          data_criacao?: string
-          disciplina?: string
+          avaliacao_id?: string | null
+          created_at?: string
+          dados?: Json | null
+          disciplina?: string | null
+          escola_id?: string
+          gerado_por?: string | null
           id?: string
-          texto_parecer?: string
-          turma?: string
+          modelo?: string
+          texto?: string
+          turma_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "pareceres_ia_avaliacao_id_fkey"
+            columns: ["avaliacao_id"]
+            isOneToOne: false
+            referencedRelation: "avaliacoes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pareceres_ia_escola_id_fkey"
+            columns: ["escola_id"]
+            isOneToOne: false
+            referencedRelation: "escolas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pareceres_ia_turma_id_fkey"
+            columns: ["turma_id"]
+            isOneToOne: false
+            referencedRelation: "turmas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      professor_turmas: {
+        Row: {
+          created_at: string
+          disciplina: string | null
+          id: string
+          turma_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          disciplina?: string | null
+          id?: string
+          turma_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          disciplina?: string | null
+          id?: string
+          turma_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "professor_turmas_turma_id_fkey"
+            columns: ["turma_id"]
+            isOneToOne: false
+            referencedRelation: "turmas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          email: string
+          escola_ativa_id: string | null
+          nome: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          email: string
+          escola_ativa_id?: string | null
+          nome: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string
+          escola_ativa_id?: string | null
+          nome?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_escola_ativa_id_fkey"
+            columns: ["escola_ativa_id"]
+            isOneToOne: false
+            referencedRelation: "escolas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      respostas: {
+        Row: {
+          cartao_id: string
+          correta: boolean
+          descritor: string | null
+          id: string
+          marcada: string | null
+          questao_ordem: number
+        }
+        Insert: {
+          cartao_id: string
+          correta?: boolean
+          descritor?: string | null
+          id?: string
+          marcada?: string | null
+          questao_ordem: number
+        }
+        Update: {
+          cartao_id?: string
+          correta?: boolean
+          descritor?: string | null
+          id?: string
+          marcada?: string | null
+          questao_ordem?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "respostas_cartao_id_fkey"
+            columns: ["cartao_id"]
+            isOneToOne: false
+            referencedRelation: "cartoes_ocr"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      turmas: {
+        Row: {
+          ano_letivo: number
+          created_at: string
+          curso: string | null
+          escola_id: string
+          id: string
+          nome: string
+          serie: string | null
+        }
+        Insert: {
+          ano_letivo?: number
+          created_at?: string
+          curso?: string | null
+          escola_id: string
+          id?: string
+          nome: string
+          serie?: string | null
+        }
+        Update: {
+          ano_letivo?: number
+          created_at?: string
+          curso?: string | null
+          escola_id?: string
+          id?: string
+          nome?: string
+          serie?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "turmas_escola_id_fkey"
+            columns: ["escola_id"]
+            isOneToOne: false
+            referencedRelation: "escolas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          escola_id: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          escola_id: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          escola_id?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_roles_escola_id_fkey"
+            columns: ["escola_id"]
+            isOneToOne: false
+            referencedRelation: "escolas"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _escola_id: string
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_member_of: {
+        Args: { _escola_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_staff_of: {
+        Args: { _escola_id: string; _user_id: string }
+        Returns: boolean
+      }
+      teaches_turma: {
+        Args: { _turma_id: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "gestor" | "coordenador" | "professor"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -251,6 +723,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["gestor", "coordenador", "professor"],
+    },
   },
 } as const

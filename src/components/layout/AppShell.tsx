@@ -32,7 +32,7 @@ const nav: { to: string; label: string; icon: typeof LayoutDashboard; accent?: b
 export function AppShell({ children }: { children: React.ReactNode }) {
   const path = useRouterState({ select: (s) => s.location.pathname });
   const [dark, setDark] = useState(true);
-  const { user, logout } = useAuth();
+  const { user, loading, logout } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -40,12 +40,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }, [dark]);
 
   useEffect(() => {
-    if (!user) navigate({ to: "/login" });
-  }, [user, navigate]);
+    if (!loading && !user) navigate({ to: "/login" });
+  }, [user, loading, navigate]);
 
-  if (!user) return null;
+  if (loading || !user) return null;
 
-  const papelLabel = user.papel === "gestor" ? "Gestora" : user.papel === "professor" ? "Professor" : "Coordenador";
+  const papelLabel = user.papelAtual === "gestor" ? "Gestor(a)" : user.papelAtual === "professor" ? "Professor(a)" : user.papelAtual === "coordenador" ? "Coordenador(a)" : "Sem papel";
+  const escolaNome = user.escolaAtiva?.nome ?? "Sem escola";
+
+
 
 
 
@@ -125,7 +128,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </div>
             <div className="hidden sm:block">
               <div className="text-xs font-semibold leading-tight">{user.nome}</div>
-              <div className="text-[10px] text-muted-foreground">{papelLabel} · {user.escola}</div>
+              <div className="text-[10px] text-muted-foreground">{papelLabel} · {escolaNome}</div>
             </div>
             <button
               onClick={() => { logout(); navigate({ to: "/login" }); }}
