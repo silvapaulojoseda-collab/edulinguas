@@ -1,0 +1,1 @@
+ALTER TABLE public.turmas ADD CONSTRAINT turmas_escola_nome_ano_uk UNIQUE (escola_id, nome, ano_letivo);
