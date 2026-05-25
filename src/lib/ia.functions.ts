@@ -27,8 +27,10 @@ export const gerarParecer = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 
-    const escolaId = await escolaAtivaDoUsuario(supabase, userId);
+    const { data: prof } = await supabase.from("profiles").select("escola_ativa_id").eq("user_id", userId).maybeSingle();
+    const escolaId = prof?.escola_ativa_id;
     if (!escolaId) throw new Error("Sem escola ativa");
+
 
     const agregado = await agregarDesempenho({
       escolaId,
@@ -104,7 +106,7 @@ ${JSON.stringify(agregado, null, 2)}`;
         avaliacao_id: data.avaliacaoId ?? null,
         disciplina: data.disciplina ?? null,
         texto: dados.diagnostico,
-        dados,
+        dados: dados as unknown as Record<string, unknown>,
         modelo: "openai/gpt-5.2",
         gerado_por: userId,
       })
@@ -131,7 +133,8 @@ export const perguntarIA = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const escolaId = await escolaAtivaDoUsuario(supabase, userId);
+    const { data: prof } = await supabase.from("profiles").select("escola_ativa_id").eq("user_id", userId).maybeSingle();
+    const escolaId = prof?.escola_ativa_id;
     if (!escolaId) throw new Error("Sem escola ativa");
 
     const agregado = await agregarDesempenho({
@@ -151,15 +154,3 @@ Dados: ${JSON.stringify(agregado)}`;
 
     return { resposta };
   });
-
-async function escolaAtivaDoUsuario(
-  supabase: { from: (t: string) => { select: (c: string) => { eq: (k: string, v: string) => { maybeSingle: () => Promise<{ data: { escola_ativa_id: string | null } | null }> } } } },
-  userId: string,
-) {
-  const { data } = await supabase
-    .from("profiles")
-    .select("escola_ativa_id")
-    .eq("user_id", userId)
-    .maybeSingle();
-  return data?.escola_ativa_id ?? null;
-}

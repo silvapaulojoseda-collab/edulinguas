@@ -167,6 +167,6 @@ export const uploadCartaoUrl = createServerFn({ method: "POST" })
     const { data: signed, error } = await supabase.storage
       .from("cartoes-resposta")
       .createSignedUploadUrl(path);
-    if (error) throw new Error(error.message);
+    if (error || !signed) throw new Error(error?.message ?? "Falha ao gerar URL de upload");
     return { path, token: signed.token, signedUrl: signed.signedUrl };
   });
