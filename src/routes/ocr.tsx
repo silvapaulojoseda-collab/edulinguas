@@ -41,7 +41,7 @@ function OCR() {
   const [lote, setLote] = useState<{ total: number; processados: number; erros: number; status: string } | null>(null);
   const [cartoes, setCartoes] = useState<CartaoStatus[]>([]);
   const [avaliacaoId, setAvaliacaoId] = useState<string>("");
-  const [avaliacoes, setAvaliacoes] = useState<{ id: string; nome: string }[]>([]);
+  const [avaliacoes, setAvaliacoes] = useState<{ id: string; titulo: string }[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const camRef = useRef<HTMLInputElement>(null);
 
