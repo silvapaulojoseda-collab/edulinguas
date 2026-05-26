@@ -106,7 +106,7 @@ ${JSON.stringify(agregado, null, 2)}`;
         avaliacao_id: data.avaliacaoId ?? null,
         disciplina: data.disciplina ?? null,
         texto: dados.diagnostico,
-        dados: dados as unknown as Record<string, unknown>,
+        dados: dados as never,
         modelo: "openai/gpt-5.2",
         gerado_por: userId,
       })
