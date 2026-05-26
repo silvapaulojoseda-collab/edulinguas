@@ -87,10 +87,10 @@ function Alunos() {
                   <td className="px-3 py-3 text-right font-display font-bold">{s.nota.toFixed(1)}</td>
                   <td className="px-3 py-3">
                     <div className="flex items-center gap-1 justify-end">
-                      <button className="size-8 grid place-items-center rounded-lg hover:bg-muted" title="QR Code">
+                      <button onClick={() => toast.success(`QR Code de ${s.nome.split(" ")[0]} pronto para impressão`)} className="size-8 grid place-items-center rounded-lg hover:bg-muted" title="QR Code">
                         <QrCode className="size-4" />
                       </button>
-                      <button className="size-8 grid place-items-center rounded-lg hover:bg-muted">
+                      <button onClick={() => toast.info(`Detalhes de ${s.nome.split(" ")[0]} em breve`)} className="size-8 grid place-items-center rounded-lg hover:bg-muted">
                         <ChevronRight className="size-4" />
                       </button>
                     </div>
