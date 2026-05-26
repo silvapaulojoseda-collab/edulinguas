@@ -276,10 +276,10 @@ function ProfessoresPage() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-2 pt-2">
-                  <button className="h-9 rounded-lg bg-primary text-primary-foreground text-xs font-semibold flex items-center justify-center gap-1.5 hover:opacity-95">
+                  <button onClick={() => toast.info(`Desempenho de ${selected.nome.split(" ")[0]} em breve`)} className="h-9 rounded-lg bg-primary text-primary-foreground text-xs font-semibold flex items-center justify-center gap-1.5 hover:opacity-95">
                     <TrendingUp className="size-3.5" /> Ver desempenho
                   </button>
-                  <button className="h-9 rounded-lg bg-muted border border-border text-xs font-semibold flex items-center justify-center gap-1.5 hover:bg-muted/70">
+                  <button onClick={() => toast.success(`Pronto para atribuir turma a ${selected.nome.split(" ")[0]}`)} className="h-9 rounded-lg bg-muted border border-border text-xs font-semibold flex items-center justify-center gap-1.5 hover:bg-muted/70">
                     <Award className="size-3.5" /> Atribuir turma
                   </button>
                 </div>
