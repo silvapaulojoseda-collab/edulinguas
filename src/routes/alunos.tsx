@@ -34,7 +34,7 @@ function Alunos() {
           <h1 className="text-3xl font-display font-bold tracking-tight">Alunos</h1>
           <p className="text-muted-foreground text-sm mt-1">{STUDENTS.length} alunos cadastrados · {TURMAS.length} turmas</p>
         </div>
-        <button className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold shadow-glow">
+        <button onClick={() => exportCsv(filtered)} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold shadow-glow">
           <Download className="size-4" /> Exportar
         </button>
       </div>
