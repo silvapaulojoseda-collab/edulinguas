@@ -54,7 +54,7 @@ function OCR() {
     if (!user?.escolaAtiva?.id) return;
     supabase
       .from("avaliacoes")
-      .select("id,nome")
+      .select("id,titulo")
       .eq("escola_id", user.escolaAtiva.id)
       .order("created_at", { ascending: false })
       .limit(20)
