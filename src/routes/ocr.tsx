@@ -232,7 +232,7 @@ function OCR() {
                   className="mt-1 w-full h-10 px-3 rounded-xl bg-muted/60 border border-border text-sm outline-none"
                 >
                   {avaliacoes.length === 0 && <option value="">Nenhuma avaliação cadastrada</option>}
-                  {avaliacoes.map((a) => <option key={a.id} value={a.id}>{a.nome}</option>)}
+                  {avaliacoes.map((a) => <option key={a.id} value={a.id}>{a.titulo}</option>)}
                 </select>
               </label>
               <Row k="Arquivos selecionados" v={String(files.length)} />
