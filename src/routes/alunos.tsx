@@ -114,3 +114,19 @@ function ScorePill({ v }: { v: number }) {
   const color = v < 50 ? "text-destructive bg-destructive/10" : v < 70 ? "text-warning bg-warning/10" : "text-success bg-success/10";
   return <span className={`px-2 py-0.5 rounded-md text-xs font-semibold ${color}`}>{v}</span>;
 }
+
+function exportCsv(rows: typeof STUDENTS) {
+  const header = ["matricula", "nome", "turma", "portugues", "ingles", "espanhol", "media"];
+  const csv = [
+    header.join(","),
+    ...rows.map((s) => [s.matricula, `"${s.nome}"`, s.turma, s.portugues, s.ingles, s.espanhol, s.nota.toFixed(1)].join(",")),
+  ].join("\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `alunos-${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast.success(`${rows.length} alunos exportados`);
+}
