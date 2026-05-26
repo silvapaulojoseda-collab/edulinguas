@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
+import { toast } from "sonner";
 
 const nav: { to: string; label: string; icon: typeof LayoutDashboard; accent?: boolean }[] = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
