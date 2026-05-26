@@ -234,7 +234,7 @@ function ProfessoresPage() {
                       <div className="text-xs text-muted-foreground">{selected.disciplina}</div>
                     </div>
                   </div>
-                  <button className="size-8 grid place-items-center rounded-lg hover:bg-muted">
+                  <button onClick={() => toast.info("Mais ações em breve")} className="size-8 grid place-items-center rounded-lg hover:bg-muted">
                     <MoreVertical className="size-4" />
                   </button>
                 </div>
