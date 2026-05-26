@@ -120,13 +120,15 @@ async function processLoteBackground(loteId: string) {
     .update({ status: erros === cartoes.length ? "error" : "done" })
     .eq("id", loteId);
 
-  await supabaseAdmin.from("notificacoes").insert({
-    user_id: lote.criado_por,
-    escola_id: lote.escola_id,
-    tipo: "ocr_concluido",
-    mensagem: `Lote OCR finalizado: ${processados - erros}/${cartoes.length} cartões lidos com sucesso.`,
-    link: `/ocr?lote=${loteId}`,
-  });
+  if (lote.criado_por) {
+    await supabaseAdmin.from("notificacoes").insert({
+      user_id: lote.criado_por,
+      escola_id: lote.escola_id,
+      tipo: "ocr_concluido",
+      mensagem: `Lote OCR finalizado: ${processados - erros}/${cartoes.length} cartões lidos com sucesso.`,
+      link: `/ocr?lote=${loteId}`,
+    });
+  }
 }
 
 export const getStatusLote = createServerFn({ method: "GET" })
