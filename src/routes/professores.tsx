@@ -108,7 +108,7 @@ function ProfessoresPage() {
               Gerencie professores, atribua turmas e acompanhe desempenho pedagógico.
             </p>
           </div>
-          <button className="h-10 px-4 rounded-xl bg-gradient-to-r from-primary to-[oklch(0.65_0.18_220)] text-primary-foreground text-sm font-semibold flex items-center gap-2 shadow-glow hover:opacity-95 transition-opacity">
+          <button onClick={() => toast.info("Convite por e-mail em breve")} className="h-10 px-4 rounded-xl bg-gradient-to-r from-primary to-[oklch(0.65_0.18_220)] text-primary-foreground text-sm font-semibold flex items-center gap-2 shadow-glow hover:opacity-95 transition-opacity">
             <Plus className="size-4" /> Novo professor
           </button>
         </div>
