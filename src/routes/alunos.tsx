@@ -3,6 +3,7 @@ import { AppShell } from "@/components/layout/AppShell";
 import { STUDENTS, TURMAS } from "@/lib/seed";
 import { useMemo, useState } from "react";
 import { Search, QrCode, Download, Filter, ChevronRight } from "lucide-react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/alunos")({
   head: () => ({
@@ -33,7 +34,7 @@ function Alunos() {
           <h1 className="text-3xl font-display font-bold tracking-tight">Alunos</h1>
           <p className="text-muted-foreground text-sm mt-1">{STUDENTS.length} alunos cadastrados · {TURMAS.length} turmas</p>
         </div>
-        <button className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold shadow-glow">
+        <button onClick={() => exportCsv(filtered)} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold shadow-glow">
           <Download className="size-4" /> Exportar
         </button>
       </div>
@@ -48,7 +49,7 @@ function Alunos() {
             <option value="">Todas as turmas</option>
             {TURMAS.map((t) => <option key={t} value={t}>{t}</option>)}
           </select>
-          <button className="inline-flex items-center gap-2 px-3 h-10 rounded-xl bg-muted/60 border border-border text-sm">
+          <button onClick={() => toast.info("Filtros avançados em breve")} className="inline-flex items-center gap-2 px-3 h-10 rounded-xl bg-muted/60 border border-border text-sm">
             <Filter className="size-4" /> Filtros
           </button>
         </div>
@@ -86,10 +87,10 @@ function Alunos() {
                   <td className="px-3 py-3 text-right font-display font-bold">{s.nota.toFixed(1)}</td>
                   <td className="px-3 py-3">
                     <div className="flex items-center gap-1 justify-end">
-                      <button className="size-8 grid place-items-center rounded-lg hover:bg-muted" title="QR Code">
+                      <button onClick={() => toast.success(`QR Code de ${s.nome.split(" ")[0]} pronto para impressão`)} className="size-8 grid place-items-center rounded-lg hover:bg-muted" title="QR Code">
                         <QrCode className="size-4" />
                       </button>
-                      <button className="size-8 grid place-items-center rounded-lg hover:bg-muted">
+                      <button onClick={() => toast.info(`Detalhes de ${s.nome.split(" ")[0]} em breve`)} className="size-8 grid place-items-center rounded-lg hover:bg-muted">
                         <ChevronRight className="size-4" />
                       </button>
                     </div>
@@ -112,4 +113,20 @@ function Alunos() {
 function ScorePill({ v }: { v: number }) {
   const color = v < 50 ? "text-destructive bg-destructive/10" : v < 70 ? "text-warning bg-warning/10" : "text-success bg-success/10";
   return <span className={`px-2 py-0.5 rounded-md text-xs font-semibold ${color}`}>{v}</span>;
+}
+
+function exportCsv(rows: typeof STUDENTS) {
+  const header = ["matricula", "nome", "turma", "portugues", "ingles", "espanhol", "media"];
+  const csv = [
+    header.join(","),
+    ...rows.map((s) => [s.matricula, `"${s.nome}"`, s.turma, s.portugues, s.ingles, s.espanhol, s.nota.toFixed(1)].join(",")),
+  ].join("\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `alunos-${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast.success(`${rows.length} alunos exportados`);
 }

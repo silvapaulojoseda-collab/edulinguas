@@ -6,6 +6,7 @@ import {
   GraduationCap, CheckCircle2, Clock, Award, Filter,
 } from "lucide-react";
 import { TURMAS, DISCIPLINAS } from "@/lib/seed";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/professores")({
   head: () => ({
@@ -107,7 +108,7 @@ function ProfessoresPage() {
               Gerencie professores, atribua turmas e acompanhe desempenho pedagógico.
             </p>
           </div>
-          <button className="h-10 px-4 rounded-xl bg-gradient-to-r from-primary to-[oklch(0.65_0.18_220)] text-primary-foreground text-sm font-semibold flex items-center gap-2 shadow-glow hover:opacity-95 transition-opacity">
+          <button onClick={() => toast.info("Convite por e-mail em breve")} className="h-10 px-4 rounded-xl bg-gradient-to-r from-primary to-[oklch(0.65_0.18_220)] text-primary-foreground text-sm font-semibold flex items-center gap-2 shadow-glow hover:opacity-95 transition-opacity">
             <Plus className="size-4" /> Novo professor
           </button>
         </div>
@@ -159,7 +160,7 @@ function ProfessoresPage() {
             <option value="afastado">Afastados</option>
             <option value="convidado">Convidados</option>
           </select>
-          <button className="h-10 px-3 rounded-xl bg-muted/50 border border-border text-sm flex items-center gap-2 hover:bg-muted">
+          <button onClick={() => toast.info("Filtros avançados em breve")} className="h-10 px-3 rounded-xl bg-muted/50 border border-border text-sm flex items-center gap-2 hover:bg-muted">
             <Filter className="size-4" /> Mais filtros
           </button>
         </div>
@@ -233,7 +234,7 @@ function ProfessoresPage() {
                       <div className="text-xs text-muted-foreground">{selected.disciplina}</div>
                     </div>
                   </div>
-                  <button className="size-8 grid place-items-center rounded-lg hover:bg-muted">
+                  <button onClick={() => toast.info("Mais ações em breve")} className="size-8 grid place-items-center rounded-lg hover:bg-muted">
                     <MoreVertical className="size-4" />
                   </button>
                 </div>
@@ -275,10 +276,10 @@ function ProfessoresPage() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-2 pt-2">
-                  <button className="h-9 rounded-lg bg-primary text-primary-foreground text-xs font-semibold flex items-center justify-center gap-1.5 hover:opacity-95">
+                  <button onClick={() => toast.info(`Desempenho de ${selected.nome.split(" ")[0]} em breve`)} className="h-9 rounded-lg bg-primary text-primary-foreground text-xs font-semibold flex items-center justify-center gap-1.5 hover:opacity-95">
                     <TrendingUp className="size-3.5" /> Ver desempenho
                   </button>
-                  <button className="h-9 rounded-lg bg-muted border border-border text-xs font-semibold flex items-center justify-center gap-1.5 hover:bg-muted/70">
+                  <button onClick={() => toast.success(`Pronto para atribuir turma a ${selected.nome.split(" ")[0]}`)} className="h-9 rounded-lg bg-muted border border-border text-xs font-semibold flex items-center justify-center gap-1.5 hover:bg-muted/70">
                     <Award className="size-3.5" /> Atribuir turma
                   </button>
                 </div>

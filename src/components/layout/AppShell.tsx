@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
+import { toast } from "sonner";
 
 const nav: { to: string; label: string; icon: typeof LayoutDashboard; accent?: boolean }[] = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -118,7 +119,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           >
             {dark ? <Sun className="size-4" /> : <Moon className="size-4" />}
           </button>
-          <button className="size-10 grid place-items-center rounded-xl hover:bg-muted transition-colors relative">
+          <button onClick={() => toast.info("3 notificações: OCR concluído, parecer IA pronto, 8 alertas")} className="size-10 grid place-items-center rounded-xl hover:bg-muted transition-colors relative">
             <Bell className="size-4" />
             <span className="absolute top-2.5 right-2.5 size-1.5 rounded-full bg-ai" />
           </button>

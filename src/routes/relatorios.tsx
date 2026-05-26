@@ -1,6 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AppShell } from "@/components/layout/AppShell";
 import { FileText, Download, Eye } from "lucide-react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/relatorios")({
   head: () => ({
@@ -21,6 +22,7 @@ const reports = [
 ];
 
 function Relatorios() {
+  const navigate = useNavigate();
   return (
     <AppShell>
       <div className="mb-6">
@@ -52,8 +54,8 @@ function Relatorios() {
                 <td className="px-3 py-3 text-xs">{r.paginas} pg</td>
                 <td className="px-3 py-3 text-right">
                   <div className="inline-flex gap-1">
-                    <button className="size-8 grid place-items-center rounded-lg hover:bg-muted"><Eye className="size-4" /></button>
-                    <button className="size-8 grid place-items-center rounded-lg hover:bg-muted"><Download className="size-4" /></button>
+                    <button onClick={() => navigate({ to: "/ia" })} className="size-8 grid place-items-center rounded-lg hover:bg-muted" title="Visualizar"><Eye className="size-4" /></button>
+                    <button onClick={() => toast.success(`Download de "${r.nome}" iniciado`)} className="size-8 grid place-items-center rounded-lg hover:bg-muted" title="Baixar PDF"><Download className="size-4" /></button>
                   </div>
                 </td>
               </tr>
