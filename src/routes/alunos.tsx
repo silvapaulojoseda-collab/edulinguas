@@ -3,6 +3,7 @@ import { AppShell } from "@/components/layout/AppShell";
 import { STUDENTS, TURMAS } from "@/lib/seed";
 import { useMemo, useState } from "react";
 import { Search, QrCode, Download, Filter, ChevronRight } from "lucide-react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/alunos")({
   head: () => ({
