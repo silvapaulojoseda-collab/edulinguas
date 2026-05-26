@@ -49,7 +49,7 @@ function Alunos() {
             <option value="">Todas as turmas</option>
             {TURMAS.map((t) => <option key={t} value={t}>{t}</option>)}
           </select>
-          <button className="inline-flex items-center gap-2 px-3 h-10 rounded-xl bg-muted/60 border border-border text-sm">
+          <button onClick={() => toast.info("Filtros avançados em breve")} className="inline-flex items-center gap-2 px-3 h-10 rounded-xl bg-muted/60 border border-border text-sm">
             <Filter className="size-4" /> Filtros
           </button>
         </div>
