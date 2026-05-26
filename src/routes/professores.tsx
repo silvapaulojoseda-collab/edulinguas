@@ -160,7 +160,7 @@ function ProfessoresPage() {
             <option value="afastado">Afastados</option>
             <option value="convidado">Convidados</option>
           </select>
-          <button className="h-10 px-3 rounded-xl bg-muted/50 border border-border text-sm flex items-center gap-2 hover:bg-muted">
+          <button onClick={() => toast.info("Filtros avançados em breve")} className="h-10 px-3 rounded-xl bg-muted/50 border border-border text-sm flex items-center gap-2 hover:bg-muted">
             <Filter className="size-4" /> Mais filtros
           </button>
         </div>
