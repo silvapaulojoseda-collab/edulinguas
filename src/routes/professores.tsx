@@ -6,6 +6,7 @@ import {
   GraduationCap, CheckCircle2, Clock, Award, Filter,
 } from "lucide-react";
 import { TURMAS, DISCIPLINAS } from "@/lib/seed";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/professores")({
   head: () => ({
