@@ -22,7 +22,7 @@ const reports = [
 ];
 
 function Relatorios() {
-  return (
+  const navigate = useNavigate();
     <AppShell>
       <div className="mb-6">
         <h1 className="text-3xl font-display font-bold tracking-tight">Relatórios</h1>
