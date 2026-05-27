@@ -14,6 +14,8 @@ import {
   Bell,
   LogOut,
   UserCog,
+  Menu,
+  X,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
