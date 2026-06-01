@@ -72,8 +72,7 @@ export const convidarProfessor = createServerFn({ method: "POST" })
       _acao: "invite.created",
       _entidade: "teacher_invites",
       _entidade_id: invite.id,
-      _metadata: { email: data.email, role: data.role },
-      _ip: null,
+      _metadata: { email: data.email, role: data.role } as never,
     });
 
     return { invite, token };
