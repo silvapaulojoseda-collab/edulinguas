@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { criarEscola, listarMinhasEscolas, ativarEscola } from "@/lib/escola.functions";
 import { useAuth } from "@/lib/auth";
+import { ProfessoresConvites } from "@/components/ProfessoresConvites";
 
 export const Route = createFileRoute("/configuracoes")({
   head: () => ({ meta: [{ title: "Configurações · EduLinguas AI" }] }),
@@ -147,6 +148,15 @@ function Config() {
           </div>
         )}
       </section>
+
+      {/* Convites de professores */}
+      <ProfessoresConvites
+        escolaId={user?.escolaAtiva?.id ?? null}
+        isGestor={
+          !!user?.escolaAtiva &&
+          (user.escolas.find((m) => m.escola.id === user.escolaAtiva!.id)?.papeis.includes("gestor") ?? false)
+        }
+      />
 
       {/* Integrações */}
       <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">Plataforma</h2>
