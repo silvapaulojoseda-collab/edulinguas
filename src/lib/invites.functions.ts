@@ -234,8 +234,7 @@ export const aceitarConvite = createServerFn({ method: "POST" })
       _acao: "invite.accepted",
       _entidade: "teacher_invites",
       _entidade_id: inv.id,
-      _metadata: { email: inv.email, role: inv.role },
-      _ip: null,
+      _metadata: { email: inv.email, role: inv.role } as never,
     });
 
     return { ok: true, email: inv.email, criado: !existente };
