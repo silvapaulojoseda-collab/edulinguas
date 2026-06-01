@@ -149,6 +149,15 @@ function Config() {
         )}
       </section>
 
+      {/* Convites de professores */}
+      <ProfessoresConvites
+        escolaId={user?.escolaAtiva?.id ?? null}
+        isGestor={
+          !!user?.escolaAtiva &&
+          (user.escolas.find((m) => m.escola.id === user.escolaAtiva!.id)?.papeis.includes("gestor") ?? false)
+        }
+      />
+
       {/* Integrações */}
       <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">Plataforma</h2>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
