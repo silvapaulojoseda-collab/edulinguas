@@ -65,6 +65,42 @@ export type Database = {
           },
         ]
       }
+      audit_logs: {
+        Row: {
+          acao: string
+          created_at: string
+          entidade: string | null
+          entidade_id: string | null
+          escola_id: string | null
+          id: string
+          ip: string | null
+          metadata: Json | null
+          user_id: string | null
+        }
+        Insert: {
+          acao: string
+          created_at?: string
+          entidade?: string | null
+          entidade_id?: string | null
+          escola_id?: string | null
+          id?: string
+          ip?: string | null
+          metadata?: Json | null
+          user_id?: string | null
+        }
+        Update: {
+          acao?: string
+          created_at?: string
+          entidade?: string | null
+          entidade_id?: string | null
+          escola_id?: string | null
+          id?: string
+          ip?: string | null
+          metadata?: Json | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       avaliacoes: {
         Row: {
           created_at: string
@@ -227,6 +263,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      invite_logs: {
+        Row: {
+          acao: string
+          ator: string | null
+          created_at: string
+          id: string
+          invite_id: string
+          metadata: Json | null
+        }
+        Insert: {
+          acao: string
+          ator?: string | null
+          created_at?: string
+          id?: string
+          invite_id: string
+          metadata?: Json | null
+        }
+        Update: {
+          acao?: string
+          ator?: string | null
+          created_at?: string
+          id?: string
+          invite_id?: string
+          metadata?: Json | null
+        }
+        Relationships: []
       }
       lotes_ocr: {
         Row: {
@@ -499,6 +562,54 @@ export type Database = {
           },
         ]
       }
+      teacher_invites: {
+        Row: {
+          aceito_em: string | null
+          aceito_por: string | null
+          convidado_por: string
+          created_at: string
+          email: string
+          escola_id: string
+          expira_em: string
+          id: string
+          nome: string | null
+          role: Database["public"]["Enums"]["app_role"]
+          status: string
+          token: string
+          updated_at: string
+        }
+        Insert: {
+          aceito_em?: string | null
+          aceito_por?: string | null
+          convidado_por: string
+          created_at?: string
+          email: string
+          escola_id: string
+          expira_em?: string
+          id?: string
+          nome?: string | null
+          role?: Database["public"]["Enums"]["app_role"]
+          status?: string
+          token: string
+          updated_at?: string
+        }
+        Update: {
+          aceito_em?: string | null
+          aceito_por?: string | null
+          convidado_por?: string
+          created_at?: string
+          email?: string
+          escola_id?: string
+          expira_em?: string
+          id?: string
+          nome?: string | null
+          role?: Database["public"]["Enums"]["app_role"]
+          status?: string
+          token?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       turmas: {
         Row: {
           ano_letivo: number
@@ -574,6 +685,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_access_school: {
+        Args: { _escola_id: string; _user_id: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _escola_id: string
@@ -589,6 +704,18 @@ export type Database = {
       is_staff_of: {
         Args: { _escola_id: string; _user_id: string }
         Returns: boolean
+      }
+      log_audit: {
+        Args: {
+          _acao: string
+          _entidade?: string
+          _entidade_id?: string
+          _escola_id: string
+          _ip?: string
+          _metadata?: Json
+          _user_id: string
+        }
+        Returns: string
       }
       teaches_turma: {
         Args: { _turma_id: string; _user_id: string }

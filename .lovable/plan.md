@@ -1,112 +1,81 @@
-## Plano de implementação — EduLinguas AI (backend real)
+# Auditoria EduLinguas AI — Plano de Execução por Fases
 
-Vamos transformar o protótipo atual (mock + localStorage) numa plataforma real com autenticação Supabase, RBAC multi-escola, OCR assíncrono e IA pedagógica via Lovable AI Gateway. Tudo com RLS estrito.
+O escopo solicitado (17 áreas, ~80 funcionalidades) é equivalente a 4–6 semanas de trabalho de uma equipe. Não cabe em uma única iteração sem comprometer qualidade, segurança e estabilidade do que já existe. Proponho **fasear** a entrega para garantir que cada bloco saia funcional, testado e seguro, em vez de quebrar tudo de uma vez.
 
-### 1. Autenticação real (substitui o mock em `src/lib/auth.tsx`)
-- Habilitar Email/Password + Google (via `lovable.auth.signInWithOAuth`).
-- Tabela `profiles` (nome, email, avatar) ligada a `auth.users` via trigger `on_auth_user_created`.
-- Tabela `escolas` (id, nome, inep, cidade, uf).
-- Enum `app_role`: `gestor | coordenador | professor`.
-- Tabela `user_roles` (user_id, escola_id, role) — **nunca** no profile (anti-escalada).
-- Função `SECURITY DEFINER public.has_role(_user_id, _escola_id, _role)` + `public.is_member_of(_user_id, _escola_id)`.
-- Tabela `user_escolas` para usuários que atuam em múltiplas escolas; escola "ativa" guardada em `profiles.escola_ativa_id`.
-- Tela `/login` reescrita com Supabase Auth + Google; nova `/signup`; `/reset-password` (rota pública obrigatória).
-- Layout `_authenticated` com `beforeLoad` redirecionando para `/login`; gate adicional aguardando `supabase.auth.getUser()` antes de loaders protegidos.
-- `onAuthStateChange` no `__root` invalidando router + react-query.
+## Estado atual (auditoria rápida)
 
-### 2. Modelo de dados multi-escola (com RLS)
-Todas as tabelas ganham `escola_id` e políticas baseadas em `is_member_of(auth.uid(), escola_id)`:
-- `alunos` (migrar a tabela atual: adicionar `escola_id`, FK, índices).
-- `turmas` (id, escola_id, nome, serie, curso).
-- `avaliacoes` (id, escola_id, titulo, tipo, disciplina, descritores[], data).
-- `gabaritos` (avaliacao_id, ordem, alternativa_correta, descritor).
-- `lotes_ocr` (id, escola_id, avaliacao_id, turma_id, status: `pending|processing|done|error`, total, processados, erros, criado_por).
-- `cartoes_ocr` (lote_id, aluno_id nullable, file_path, qr_lido, marcacoes jsonb, status, motivo_erro, acertos, total).
-- `respostas` (cartao_id, questao_ordem, marcada, correta, descritor).
-- `pareceres_ia` (já existe — adicionar `escola_id`, `avaliacao_id`, `turma_id`, `gerado_por`, modelo usado).
-- `notificacoes` — adicionar `user_id`, `escola_id`.
+Já está pronto:
+- Auth real (email/senha + Google via broker Lovable), `profiles`, `user_roles`, `app_role`, `has_role`, `is_member_of`, `is_staff_of`, `teaches_turma`
+- Tabelas: `escolas`, `turmas`, `alunos`, `avaliacoes`, `gabaritos`, `lotes_ocr`, `cartoes_ocr`, `respostas`, `pareceres_ia`, `notificacoes`, `professor_turmas` — todas com RLS por escola/role (sem `USING (true)`)
+- Bucket privado `cartoes-resposta`
+- Server functions: OCR (`criarLoteOcr`, `getStatusLote`, processamento async com QR via `jsqr` + visão Gemini), IA (`gerarParecer` GPT-5.2, `perguntarIA`), escolas (`criarEscola`, `listarMinhasEscolas`, `ativarEscola`)
+- Layout responsivo (mobile drawer + bottom nav + sidebar desktop)
+- Telas funcionais: dashboard, alunos, avaliações, OCR, IA, configurações
 
-RLS:
-- SELECT/INSERT/UPDATE/DELETE restritos a membros da escola.
-- Gestor/coordenador podem ver tudo da escola; professor vê só turmas atribuídas (`professor_turmas`).
-- Substituir as políticas atuais `USING (true)` (inseguras) por políticas baseadas em role.
+Faltando / parcial:
+- Convites de professor, audit logs, dashboard executivo agregado multi-escola
+- CRUD completo de gabaritos com import/export Excel
+- Geração de planilhas com QR (PDF/Excel) para impressão
+- Buckets adicionais (`reports`, `school-assets`, `qr-templates`)
+- Realtime nas notificações
+- Exportações PDF/Excel institucionais
+- Testes automatizados
 
-### 3. Storage para cartões
-- Bucket `cartoes-resposta` (privado).
-- Policies: upload e leitura apenas para membros da escola dono do lote (path = `{escola_id}/{lote_id}/{arquivo}`).
+## Fases propostas
 
-### 4. Pipeline OCR + QR assíncrono (server functions, sem Edge Functions)
-- `src/lib/ocr.functions.ts`:
-  - `criarLoteOcr({ avaliacaoId, turmaId, arquivos[] })` — cria lote `pending`, faz upload via `supabaseAdmin` para o bucket, dispara processamento.
-  - `processarLote({ loteId })` — server fn que roda em background (fire-and-forget via `setTimeout` na worker, marca `processing` → `done`).
-  - Para cada cartão:
-    1. Lê imagem do storage.
-    2. Detecta QR com `jsqr` (puro JS, compatível com Workers) → identifica `aluno_id`.
-    3. Envia imagem ao **Lovable AI Gateway** (`google/gemini-2.5-flash`, multimodal) com prompt estruturado pedindo JSON `{ marcacoes: [{questao, alternativa, dupla}] }`.
-    4. Compara com `gabaritos` → grava `respostas`, `acertos`.
-    5. Atualiza contadores do lote; cria `notificacoes` ao finalizar.
-- `getStatusLote({ loteId })` — polling no front (React Query refetchInterval) até `done`.
-- Tela `/ocr` reescrita: upload real (dropzone → supabase storage via server fn), barra de progresso por lote, tabela em tempo real (Realtime na tabela `cartoes_ocr`).
+### Fase 1 — Fundação de segurança e dados (1 iteração)
+- Tabelas novas: `teacher_invites`, `invite_logs`, `audit_logs`, `user_escolas` (view sobre `user_roles`)
+- Função SQL `can_access_school()`
+- Trigger genérica de `updated_at` nas tabelas que faltam
+- Índices de performance (`alunos.escola_id`, `cartoes_ocr.lote_id`, `respostas.cartao_id`, etc.)
+- Buckets: `reports` (privado), `school-assets` (privado), `qr-templates` (privado) — com RLS por `escola_id` no path
+- Revisão das policies existentes (já estão corretas, mas confirmar gaps de UPDATE/DELETE em `notificacoes` e `escolas`)
 
-### 5. IA Pedagógica real (Lovable AI Gateway)
-- `src/lib/ia.functions.ts`:
-  - `gerarParecer({ avaliacaoId, turmaId })` — agrega desempenho por descritor, monta prompt e chama `openai/gpt-5.2` via gateway, salva em `pareceres_ia` (texto + JSON estruturado com `pontos_fortes`, `gargalos`, `plano_intervencao`, `descritores_criticos`, `previsao_spaece`).
-  - `perguntarIA({ turmaId, pergunta, historico })` — chat contextualizado com dados da turma (RAG simples por SQL agregando respostas).
-- Tela `/ia` consome dados reais; chat com streaming opcional.
-- Tratamento de erros 429/402 do gateway com fallback amigável.
+### Fase 2 — Convite de professores (1 iteração)
+- Server fns: `convidarProfessor`, `aceitarConvite`, `reenviarConvite`, `cancelarConvite`, `listarConvites`
+- Token JWT assinado + expiração 7 dias
+- Email via Lovable Cloud Emails (requer setup de domínio — vou pedir confirmação)
+- Tela `/configuracoes` → aba "Professores": listar/convidar/revogar
+- Rota pública `/convite/$token` para aceitar
+- Logs em `invite_logs`
 
-### 6. Segurança — corrigir tudo
-- Remover políticas demo `USING (true)` em `alunos`, `gabaritos_ocr`, `notificacoes`, `pareceres_ia` (eram públicas — qualquer um lia tudo).
-- Habilitar **Leaked Password Protection** (HIBP) via `configure_auth`.
-- Validação Zod em todas as server fns (tamanhos máximos, regex).
-- Storage privado com path enforcement.
-- `requireSupabaseAuth` em todas as server fns; `attachSupabaseAuth` em `src/start.ts`.
-- Rodar `supabase--linter` ao final e corrigir warnings.
-- Atualizar `security--update_memory` com modelo de acesso.
+### Fase 3 — Gabaritos + QR + Planilhas (1 iteração)
+- CRUD `/gabaritos` (criar, editar, duplicar, excluir, importar Excel via SheetJS, exportar)
+- Geração de QR por aluno (`qrcode` lib) contendo `{escolaId, avaliacaoId, alunoId, hash HMAC, v:1}`
+- Validação HMAC no pipeline OCR (rejeita QR de outra escola)
+- Geração de PDF de planilha de resposta (pdf-lib) com QR + cabeçalho institucional
+- Export Excel da lista de alunos × avaliação
 
-### 7. UX
-- Banner "modo demo" removido; tela `/login` com Google + email/senha + link "esqueci a senha".
-- Seletor de escola no header (para usuários multi-escola).
-- Toasts (`sonner`) para criação de lote, conclusão de OCR, geração de parecer.
-- Loading states reais via Suspense/React Query.
+### Fase 4 — OCR avançado + IA com auditoria (1 iteração)
+- Pipeline OCR: detecção de dupla marcação, questões em branco, score de confiança, motivo de erro padronizado
+- Métricas em `audit_logs`: tempo de processamento por cartão, taxa de sucesso por lote
+- IA: versionar prompts em `pareceres_ia.dados.prompt_version`, registrar modelo/tempo/tokens estimados
+- Tratamento explícito 429/402 já existe — adicionar retry com backoff
 
-### Detalhes técnicos
-```text
-src/
-  routes/
-    login.tsx               # email+senha + Google
-    signup.tsx              # novo
-    reset-password.tsx      # novo (público)
-    _authenticated.tsx      # layout gate
-    _authenticated/
-      index.tsx             # dashboard
-      alunos.tsx
-      professores.tsx
-      avaliacoes.tsx
-      ocr.tsx               # real-time
-      ia.tsx                # parecer + chat
-      relatorios.tsx
-      configuracoes.tsx
-  lib/
-    auth.tsx                # wrapper supabase + roles
-    ocr.functions.ts        # createServerFn
-    ocr.server.ts           # helpers (jsqr, parsing)
-    ia.functions.ts         # gateway calls
-    ia.server.ts            # prompts + agregações
-    escola.functions.ts     # escolha de escola ativa
-  integrations/supabase/    # gerados, intocados
-```
+### Fase 5 — Dashboard executivo + Notificações realtime + Exports (1 iteração)
+- Dashboard `/relatorios` com KPIs agregados (média geral, por escola, por turma, descritores críticos, ranking), filtros período/escola/turma/avaliação
+- Realtime em `notificacoes` (`ALTER PUBLICATION supabase_realtime ADD TABLE`)
+- Triggers de notificação: OCR concluído/erro, parecer gerado, convite aceito
+- Exportações PDF institucional (pdf-lib) + Excel + CSV com logo
 
-Dependências novas: `jsqr` (QR puro JS, Worker-safe).
-Modelos: `google/gemini-2.5-flash` (visão para OCR), `openai/gpt-5.2` (parecer).
-Secrets: `LOVABLE_API_KEY` já existe — nada a pedir.
+### Fase 6 — Observabilidade + Testes + Polimento UX (1 iteração)
+- Skeleton loaders, estados vazios e mensagens de erro padronizadas em todas as telas
+- Captura de erros via error boundaries em todas as rotas com loader
+- Testes Vitest: server fns (escola, ocr, ia, convite), validação Zod, RLS via SQL
+- Relatório final de maturidade
 
-### Migração de dados
-Os 415 alunos atuais (em `src/data/students.json`) são seedados numa escola padrão "EEEP Profa. Maria Dolores" via migration de seed após o usuário criar a primeira conta gestora.
+## Diretrizes técnicas
 
-### O que NÃO entra neste passo
-- App mobile nativo (continua responsivo).
-- Importação automática de novas planilhas (mantemos seed).
-- Geração de PDF de relatórios (botões existem, geração real fica para próximo ciclo).
+- Tudo em `createServerFn` + `requireSupabaseAuth` (sem Edge Functions novas)
+- Validação Zod em 100% das entradas
+- Sem `USING (true)` em nenhuma policy nova
+- Sem mocks, sem dados fictícios
+- Code splits por rota, sem regressão no que já está funcional
 
-Posso seguir?
+## O que preciso confirmar para começar
+
+1. **Por onde começar?** Sugiro Fase 1 + Fase 2 numa só rodada (são as fundações; sem isso, audit/convites não existem). As demais fases viriam em iterações seguintes a seu pedido.
+2. **Email para convites**: usar domínio Lovable padrão (`@updates.lovable.dev`) ou configurar domínio próprio agora? O segundo exige DNS verificado.
+3. **Posso seguir com Fase 1 + Fase 2 agora?**
+
+Se aprovar este plano, começo já pelas migrations da Fase 1 e implemento o fluxo de convites na sequência.
