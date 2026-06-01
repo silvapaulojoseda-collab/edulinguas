@@ -22,7 +22,7 @@ async function ensureGestor(userId: string, escolaId: string) {
 }
 
 async function logInvite(invite_id: string, acao: string, ator: string | null, metadata?: Record<string, unknown>) {
-  await supabaseAdmin.from("invite_logs").insert({ invite_id, acao, ator, metadata: metadata ?? null });
+  await supabaseAdmin.from("invite_logs").insert({ invite_id, acao, ator, metadata: (metadata ?? null) as never });
 }
 
 /** Cria um convite e retorna o link compartilhável. */
