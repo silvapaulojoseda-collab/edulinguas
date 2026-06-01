@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { criarEscola, listarMinhasEscolas, ativarEscola } from "@/lib/escola.functions";
 import { useAuth } from "@/lib/auth";
+import { ProfessoresConvites } from "@/components/ProfessoresConvites";
 
 export const Route = createFileRoute("/configuracoes")({
   head: () => ({ meta: [{ title: "Configurações · EduLinguas AI" }] }),
