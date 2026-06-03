@@ -16,6 +16,7 @@ import { Route as ProfessoresRouteImport } from './routes/professores'
 import { Route as OcrRouteImport } from './routes/ocr'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IaRouteImport } from './routes/ia'
+import { Route as GabaritosRouteImport } from './routes/gabaritos'
 import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as AvaliacoesRouteImport } from './routes/avaliacoes'
 import { Route as AlunosRouteImport } from './routes/alunos'
@@ -57,6 +58,11 @@ const IaRoute = IaRouteImport.update({
   path: '/ia',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GabaritosRoute = GabaritosRouteImport.update({
+  id: '/gabaritos',
+  path: '/gabaritos',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ConfiguracoesRoute = ConfiguracoesRouteImport.update({
   id: '/configuracoes',
   path: '/configuracoes',
@@ -88,6 +94,7 @@ export interface FileRoutesByFullPath {
   '/alunos': typeof AlunosRoute
   '/avaliacoes': typeof AvaliacoesRoute
   '/configuracoes': typeof ConfiguracoesRoute
+  '/gabaritos': typeof GabaritosRoute
   '/ia': typeof IaRoute
   '/login': typeof LoginRoute
   '/ocr': typeof OcrRoute
@@ -102,6 +109,7 @@ export interface FileRoutesByTo {
   '/alunos': typeof AlunosRoute
   '/avaliacoes': typeof AvaliacoesRoute
   '/configuracoes': typeof ConfiguracoesRoute
+  '/gabaritos': typeof GabaritosRoute
   '/ia': typeof IaRoute
   '/login': typeof LoginRoute
   '/ocr': typeof OcrRoute
@@ -117,6 +125,7 @@ export interface FileRoutesById {
   '/alunos': typeof AlunosRoute
   '/avaliacoes': typeof AvaliacoesRoute
   '/configuracoes': typeof ConfiguracoesRoute
+  '/gabaritos': typeof GabaritosRoute
   '/ia': typeof IaRoute
   '/login': typeof LoginRoute
   '/ocr': typeof OcrRoute
@@ -133,6 +142,7 @@ export interface FileRouteTypes {
     | '/alunos'
     | '/avaliacoes'
     | '/configuracoes'
+    | '/gabaritos'
     | '/ia'
     | '/login'
     | '/ocr'
@@ -147,6 +157,7 @@ export interface FileRouteTypes {
     | '/alunos'
     | '/avaliacoes'
     | '/configuracoes'
+    | '/gabaritos'
     | '/ia'
     | '/login'
     | '/ocr'
@@ -161,6 +172,7 @@ export interface FileRouteTypes {
     | '/alunos'
     | '/avaliacoes'
     | '/configuracoes'
+    | '/gabaritos'
     | '/ia'
     | '/login'
     | '/ocr'
@@ -176,6 +188,7 @@ export interface RootRouteChildren {
   AlunosRoute: typeof AlunosRoute
   AvaliacoesRoute: typeof AvaliacoesRoute
   ConfiguracoesRoute: typeof ConfiguracoesRoute
+  GabaritosRoute: typeof GabaritosRoute
   IaRoute: typeof IaRoute
   LoginRoute: typeof LoginRoute
   OcrRoute: typeof OcrRoute
@@ -237,6 +250,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/gabaritos': {
+      id: '/gabaritos'
+      path: '/gabaritos'
+      fullPath: '/gabaritos'
+      preLoaderRoute: typeof GabaritosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/configuracoes': {
       id: '/configuracoes'
       path: '/configuracoes'
@@ -280,6 +300,7 @@ const rootRouteChildren: RootRouteChildren = {
   AlunosRoute: AlunosRoute,
   AvaliacoesRoute: AvaliacoesRoute,
   ConfiguracoesRoute: ConfiguracoesRoute,
+  GabaritosRoute: GabaritosRoute,
   IaRoute: IaRoute,
   LoginRoute: LoginRoute,
   OcrRoute: OcrRoute,
@@ -292,13 +313,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

@@ -34,7 +34,7 @@ export const convidarProfessor = createServerFn({ method: "POST" })
         escolaId: z.string().uuid(),
         email: emailSchema,
         nome: z.string().min(1).max(120).optional(),
-        role: z.enum(["professor", "coordenador"]).default("professor"),
+        role: z.enum(["gestor", "coordenador", "professor"]).default("professor"),
       })
       .parse(input),
   )

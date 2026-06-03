@@ -97,6 +97,7 @@ async function processLoteBackground(loteId: string) {
         cartaoId: cartao.id,
         filePath: cartao.file_path,
         escolaId: lote.escola_id,
+        avaliacaoId: lote.avaliacao_id,
         gabarito: gabarito ?? [],
       });
       processados++;
