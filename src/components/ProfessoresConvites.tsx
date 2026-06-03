@@ -9,11 +9,12 @@ import {
   reenviarConvite,
 } from "@/lib/invites.functions";
 
+type InviteRole = "gestor" | "coordenador" | "professor";
 type Invite = {
   id: string;
   email: string;
   nome: string | null;
-  role: "professor" | "coordenador";
+  role: InviteRole;
   status: string;
   token: string;
   expira_em: string;
@@ -31,7 +32,7 @@ export function ProfessoresConvites({ escolaId, isGestor }: { escolaId: string |
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [form, setForm] = useState({ email: "", nome: "", role: "professor" as "professor" | "coordenador" });
+  const [form, setForm] = useState({ email: "", nome: "", role: "professor" as InviteRole });
   const [novoLink, setNovoLink] = useState<string | null>(null);
 
   async function load() {
@@ -210,12 +211,16 @@ export function ProfessoresConvites({ escolaId, isGestor }: { escolaId: string |
                   <span className="text-xs font-semibold text-muted-foreground">Função</span>
                   <select
                     value={form.role}
-                    onChange={(e) => setForm({ ...form, role: e.target.value as "professor" | "coordenador" })}
+                    onChange={(e) => setForm({ ...form, role: e.target.value as InviteRole })}
                     className="mt-1 w-full h-11 px-3 rounded-xl bg-muted/40 border border-border text-sm outline-none focus:border-primary"
                   >
                     <option value="professor">Professor</option>
                     <option value="coordenador">Coordenador</option>
+                    <option value="gestor">Gestor</option>
                   </select>
+                  <span className="text-[10px] text-muted-foreground mt-1 block">
+                    Gestores podem criar avaliações, convidar equipe e gerenciar a escola.
+                  </span>
                 </label>
                 <div className="flex items-center justify-end gap-2 pt-2">
                   <button type="button" onClick={() => setOpen(false)} className="h-10 px-4 rounded-xl text-sm font-semibold hover:bg-muted">
