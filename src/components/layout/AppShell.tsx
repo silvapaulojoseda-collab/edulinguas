@@ -26,6 +26,7 @@ const nav: { to: string; label: string; icon: typeof LayoutDashboard; accent?: b
   { to: "/alunos", label: "Alunos", icon: Users },
   { to: "/professores", label: "Professores", icon: UserCog },
   { to: "/avaliacoes", label: "Avaliações", icon: ClipboardList },
+  { to: "/gabaritos", label: "Gabaritos", icon: ClipboardList },
   { to: "/ocr", label: "Leitura OCR", icon: ScanLine },
   { to: "/ia", label: "IA Pedagógica", icon: Sparkles, accent: true },
   { to: "/relatorios", label: "Relatórios", icon: FileBarChart },
