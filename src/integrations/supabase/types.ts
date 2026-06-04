@@ -697,11 +697,11 @@ export type Database = {
         }
         Returns: boolean
       }
-      is_member_of: {
+      is_gestor_ou_coordenador: {
         Args: { _escola_id: string; _user_id: string }
         Returns: boolean
       }
-      is_staff_of: {
+      is_member_of: {
         Args: { _escola_id: string; _user_id: string }
         Returns: boolean
       }
