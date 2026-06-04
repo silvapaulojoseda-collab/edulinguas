@@ -45,6 +45,14 @@ export const ensureMembership = createServerFn({ method: "POST" })
     return { ok: true, created: true, role };
   });
 
+/**
+ * Atribui ou troca o papel de um usuário em uma escola.
+ *
+ * Segurança:
+ * - apenas um gestor da própria escola pode chamar (checado server-side com supabaseAdmin);
+ * - promoção a "gestor" é bloqueada nesta rota — usar fluxo administrativo dedicado;
+ * - usa supabaseAdmin para a escrita (a policy de user_roles é restrita).
+ */
 export const promoverUsuario = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
@@ -52,21 +60,34 @@ export const promoverUsuario = createServerFn({ method: "POST" })
       .object({
         userId: z.string().uuid(),
         escolaId: z.string().uuid(),
-        role: z.enum(["gestor", "coordenador", "professor"]),
+        role: z.enum(["coordenador", "professor"]),
       })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
-    const { error } = await supabase
+    const { userId: callerId } = context;
+
+    const { data: callerRole } = await supabaseAdmin
+      .from("user_roles")
+      .select("id")
+      .eq("user_id", callerId)
+      .eq("escola_id", data.escolaId)
+      .eq("role", "gestor")
+      .maybeSingle();
+    if (!callerRole) {
+      throw new Error("Apenas gestores desta escola podem alterar papéis.");
+    }
+
+    const { error } = await supabaseAdmin
       .from("user_roles")
       .upsert(
         { user_id: data.userId, escola_id: data.escolaId, role: data.role },
-        { onConflict: "user_id,escola_id,role" },
+        { onConflict: "user_id,escola_id,role", ignoreDuplicates: true },
       );
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
 
 /**
  * Cria uma nova escola e atribui o usuário como gestor.

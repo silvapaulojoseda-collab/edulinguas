@@ -165,7 +165,18 @@ export const uploadCartaoUrl = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
+    const { supabase, userId } = context;
+    // Verifica que o caller pertence à escola informada para evitar gravar em pastas alheias
+    const { data: membership, error: mErr } = await supabase
+      .from("user_roles")
+      .select("id")
+      .eq("user_id", userId)
+      .eq("escola_id", data.escolaId)
+      .limit(1)
+      .maybeSingle();
+    if (mErr) throw new Error(mErr.message);
+    if (!membership) throw new Error("Sem acesso a esta escola.");
+
     const path = `${data.escolaId}/${data.loteRef}/${Date.now()}-${data.filename}`;
     const { data: signed, error } = await supabase.storage
       .from("cartoes-resposta")
