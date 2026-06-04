@@ -240,5 +240,5 @@ export const aceitarConvite = createServerFn({ method: "POST" })
       _metadata: { email: inv.email, role: inv.role } as never,
     });
 
-    return { ok: true, email: inv.email, criado: !existente };
+    return { ok: true, email: inv.email, criado: !prof };
   });
