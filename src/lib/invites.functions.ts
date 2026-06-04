@@ -184,11 +184,14 @@ export const aceitarConvite = createServerFn({ method: "POST" })
       throw new Error("Convite expirado");
     }
 
-    // Localiza ou cria o usuário pelo email
-    const { data: list } = await supabaseAdmin.auth.admin.listUsers();
-    const existente = list.users.find((u) => (u.email ?? "").toLowerCase() === inv.email);
+    // Procura conta existente por e-mail via profiles (evita listUsers que enumera toda a plataforma)
+    const { data: prof } = await supabaseAdmin
+      .from("profiles")
+      .select("user_id")
+      .eq("email", inv.email)
+      .maybeSingle();
 
-    let userId = existente?.id;
+    let userId = prof?.user_id ?? undefined;
     if (!userId) {
       if (!data.senha) throw new Error("Defina uma senha para criar sua conta");
       const { data: created, error: cErr } = await supabaseAdmin.auth.admin.createUser({
@@ -237,5 +240,5 @@ export const aceitarConvite = createServerFn({ method: "POST" })
       _metadata: { email: inv.email, role: inv.role } as never,
     });
 
-    return { ok: true, email: inv.email, criado: !existente };
+    return { ok: true, email: inv.email, criado: !prof };
   });
