@@ -92,12 +92,12 @@ export const atualizarAluno = createServerFn({ method: "POST" })
       turmaNome = t?.nome ?? null;
     }
 
-    const patch: Record<string, unknown> = {
+    const patch = {
       nome: data.nome.trim(),
       matricula: data.matricula?.trim() || null,
       turma_id: data.turmaId ?? null,
+      ...(turmaNome ? { turma: turmaNome } : {}),
     };
-    if (turmaNome) patch.turma = turmaNome;
 
     const { error } = await supabase
       .from("alunos")
