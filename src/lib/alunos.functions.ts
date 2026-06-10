@@ -271,14 +271,12 @@ export const importarAlunos = createServerFn({ method: "POST" })
         _escola_id: data.escolaId,
         _acao: "importar_alunos",
         _entidade: "alunos",
-        _entidade_id: null,
         _metadata: {
           arquivo: data.fileName ?? null,
           ano_letivo: data.anoLetivo,
           ...resultado,
           erroDetalhes: resultado.erroDetalhes.slice(0, 50),
         },
-        _ip: null,
       });
     } catch {
       // não bloqueia
