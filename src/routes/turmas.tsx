@@ -63,12 +63,12 @@ function TurmasPage() {
   const invalidate = () => qc.invalidateQueries({ queryKey: ["turmas-full", escolaId] });
 
   const mCriar = useMutation({
-    mutationFn: (i: Omit<Parameters<typeof _criar>[0]["data"], "escolaId">) => _criar({ data: { escolaId: escolaId!, ...i } }),
+    mutationFn: (i: TurmaFormVals) => _criar({ data: { escolaId: escolaId!, ...i } }),
     onSuccess: () => { toast.success("Turma criada"); invalidate(); setOpen(null); },
     onError: (e: Error) => toast.error(e.message),
   });
   const mAtualizar = useMutation({
-    mutationFn: (i: Omit<Parameters<typeof _atualizar>[0]["data"], "escolaId">) => _atualizar({ data: { escolaId: escolaId!, ...i } }),
+    mutationFn: (i: TurmaFormVals & { id: string }) => _atualizar({ data: { escolaId: escolaId!, ...i } }),
     onSuccess: () => { toast.success("Turma atualizada"); invalidate(); setOpen(null); },
     onError: (e: Error) => toast.error(e.message),
   });

@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TurmasRouteImport } from './routes/turmas'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RelatoriosRouteImport } from './routes/relatorios'
@@ -17,12 +18,18 @@ import { Route as OcrRouteImport } from './routes/ocr'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IaRouteImport } from './routes/ia'
 import { Route as GabaritosRouteImport } from './routes/gabaritos'
+import { Route as CursosRouteImport } from './routes/cursos'
 import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as AvaliacoesRouteImport } from './routes/avaliacoes'
 import { Route as AlunosRouteImport } from './routes/alunos'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ConviteTokenRouteImport } from './routes/convite.$token'
 
+const TurmasRoute = TurmasRouteImport.update({
+  id: '/turmas',
+  path: '/turmas',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
@@ -63,6 +70,11 @@ const GabaritosRoute = GabaritosRouteImport.update({
   path: '/gabaritos',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CursosRoute = CursosRouteImport.update({
+  id: '/cursos',
+  path: '/cursos',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ConfiguracoesRoute = ConfiguracoesRouteImport.update({
   id: '/configuracoes',
   path: '/configuracoes',
@@ -94,6 +106,7 @@ export interface FileRoutesByFullPath {
   '/alunos': typeof AlunosRoute
   '/avaliacoes': typeof AvaliacoesRoute
   '/configuracoes': typeof ConfiguracoesRoute
+  '/cursos': typeof CursosRoute
   '/gabaritos': typeof GabaritosRoute
   '/ia': typeof IaRoute
   '/login': typeof LoginRoute
@@ -102,6 +115,7 @@ export interface FileRoutesByFullPath {
   '/relatorios': typeof RelatoriosRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
+  '/turmas': typeof TurmasRoute
   '/convite/$token': typeof ConviteTokenRoute
 }
 export interface FileRoutesByTo {
@@ -109,6 +123,7 @@ export interface FileRoutesByTo {
   '/alunos': typeof AlunosRoute
   '/avaliacoes': typeof AvaliacoesRoute
   '/configuracoes': typeof ConfiguracoesRoute
+  '/cursos': typeof CursosRoute
   '/gabaritos': typeof GabaritosRoute
   '/ia': typeof IaRoute
   '/login': typeof LoginRoute
@@ -117,6 +132,7 @@ export interface FileRoutesByTo {
   '/relatorios': typeof RelatoriosRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
+  '/turmas': typeof TurmasRoute
   '/convite/$token': typeof ConviteTokenRoute
 }
 export interface FileRoutesById {
@@ -125,6 +141,7 @@ export interface FileRoutesById {
   '/alunos': typeof AlunosRoute
   '/avaliacoes': typeof AvaliacoesRoute
   '/configuracoes': typeof ConfiguracoesRoute
+  '/cursos': typeof CursosRoute
   '/gabaritos': typeof GabaritosRoute
   '/ia': typeof IaRoute
   '/login': typeof LoginRoute
@@ -133,6 +150,7 @@ export interface FileRoutesById {
   '/relatorios': typeof RelatoriosRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
+  '/turmas': typeof TurmasRoute
   '/convite/$token': typeof ConviteTokenRoute
 }
 export interface FileRouteTypes {
@@ -142,6 +160,7 @@ export interface FileRouteTypes {
     | '/alunos'
     | '/avaliacoes'
     | '/configuracoes'
+    | '/cursos'
     | '/gabaritos'
     | '/ia'
     | '/login'
@@ -150,6 +169,7 @@ export interface FileRouteTypes {
     | '/relatorios'
     | '/reset-password'
     | '/signup'
+    | '/turmas'
     | '/convite/$token'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -157,6 +177,7 @@ export interface FileRouteTypes {
     | '/alunos'
     | '/avaliacoes'
     | '/configuracoes'
+    | '/cursos'
     | '/gabaritos'
     | '/ia'
     | '/login'
@@ -165,6 +186,7 @@ export interface FileRouteTypes {
     | '/relatorios'
     | '/reset-password'
     | '/signup'
+    | '/turmas'
     | '/convite/$token'
   id:
     | '__root__'
@@ -172,6 +194,7 @@ export interface FileRouteTypes {
     | '/alunos'
     | '/avaliacoes'
     | '/configuracoes'
+    | '/cursos'
     | '/gabaritos'
     | '/ia'
     | '/login'
@@ -180,6 +203,7 @@ export interface FileRouteTypes {
     | '/relatorios'
     | '/reset-password'
     | '/signup'
+    | '/turmas'
     | '/convite/$token'
   fileRoutesById: FileRoutesById
 }
@@ -188,6 +212,7 @@ export interface RootRouteChildren {
   AlunosRoute: typeof AlunosRoute
   AvaliacoesRoute: typeof AvaliacoesRoute
   ConfiguracoesRoute: typeof ConfiguracoesRoute
+  CursosRoute: typeof CursosRoute
   GabaritosRoute: typeof GabaritosRoute
   IaRoute: typeof IaRoute
   LoginRoute: typeof LoginRoute
@@ -196,11 +221,19 @@ export interface RootRouteChildren {
   RelatoriosRoute: typeof RelatoriosRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SignupRoute: typeof SignupRoute
+  TurmasRoute: typeof TurmasRoute
   ConviteTokenRoute: typeof ConviteTokenRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/turmas': {
+      id: '/turmas'
+      path: '/turmas'
+      fullPath: '/turmas'
+      preLoaderRoute: typeof TurmasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/signup': {
       id: '/signup'
       path: '/signup'
@@ -257,6 +290,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GabaritosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cursos': {
+      id: '/cursos'
+      path: '/cursos'
+      fullPath: '/cursos'
+      preLoaderRoute: typeof CursosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/configuracoes': {
       id: '/configuracoes'
       path: '/configuracoes'
@@ -300,6 +340,7 @@ const rootRouteChildren: RootRouteChildren = {
   AlunosRoute: AlunosRoute,
   AvaliacoesRoute: AvaliacoesRoute,
   ConfiguracoesRoute: ConfiguracoesRoute,
+  CursosRoute: CursosRoute,
   GabaritosRoute: GabaritosRoute,
   IaRoute: IaRoute,
   LoginRoute: LoginRoute,
@@ -308,6 +349,7 @@ const rootRouteChildren: RootRouteChildren = {
   RelatoriosRoute: RelatoriosRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SignupRoute: SignupRoute,
+  TurmasRoute: TurmasRoute,
   ConviteTokenRoute: ConviteTokenRoute,
 }
 export const routeTree = rootRouteImport
