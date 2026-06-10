@@ -25,6 +25,7 @@ export type Database = {
           progresso_spaece: number | null
           turma: string
           turma_id: string | null
+          updated_at: string
         }
         Insert: {
           created_at?: string
@@ -36,6 +37,7 @@ export type Database = {
           progresso_spaece?: number | null
           turma: string
           turma_id?: string | null
+          updated_at?: string
         }
         Update: {
           created_at?: string
@@ -47,6 +49,7 @@ export type Database = {
           progresso_spaece?: number | null
           turma?: string
           turma_id?: string | null
+          updated_at?: string
         }
         Relationships: [
           {
@@ -201,6 +204,44 @@ export type Database = {
             columns: ["lote_id"]
             isOneToOne: false
             referencedRelation: "lotes_ocr"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cursos: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          descricao: string | null
+          escola_id: string
+          id: string
+          nome: string
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          descricao?: string | null
+          escola_id: string
+          id?: string
+          nome: string
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          descricao?: string | null
+          escola_id?: string
+          id?: string
+          nome?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cursos_escola_id_fkey"
+            columns: ["escola_id"]
+            isOneToOne: false
+            referencedRelation: "escolas"
             referencedColumns: ["id"]
           },
         ]
@@ -613,32 +654,54 @@ export type Database = {
       turmas: {
         Row: {
           ano_letivo: number
+          ativo: boolean
+          capacidade: number | null
           created_at: string
           curso: string | null
+          curso_id: string | null
           escola_id: string
           id: string
           nome: string
           serie: string | null
+          turno: string | null
+          updated_at: string
         }
         Insert: {
           ano_letivo?: number
+          ativo?: boolean
+          capacidade?: number | null
           created_at?: string
           curso?: string | null
+          curso_id?: string | null
           escola_id: string
           id?: string
           nome: string
           serie?: string | null
+          turno?: string | null
+          updated_at?: string
         }
         Update: {
           ano_letivo?: number
+          ativo?: boolean
+          capacidade?: number | null
           created_at?: string
           curso?: string | null
+          curso_id?: string | null
           escola_id?: string
           id?: string
           nome?: string
           serie?: string | null
+          turno?: string | null
+          updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "turmas_curso_id_fkey"
+            columns: ["curso_id"]
+            isOneToOne: false
+            referencedRelation: "cursos"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "turmas_escola_id_fkey"
             columns: ["escola_id"]

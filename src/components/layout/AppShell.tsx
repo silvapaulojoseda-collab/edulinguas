@@ -24,6 +24,8 @@ import { toast } from "sonner";
 const nav: { to: string; label: string; icon: typeof LayoutDashboard; accent?: boolean }[] = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
   { to: "/alunos", label: "Alunos", icon: Users },
+  { to: "/turmas", label: "Turmas", icon: GraduationCap },
+  { to: "/cursos", label: "Cursos", icon: ClipboardList },
   { to: "/professores", label: "Professores", icon: UserCog },
   { to: "/avaliacoes", label: "Avaliações", icon: ClipboardList },
   { to: "/gabaritos", label: "Gabaritos", icon: ClipboardList },
