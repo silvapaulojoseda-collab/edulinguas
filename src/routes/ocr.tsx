@@ -276,3 +276,16 @@ function Row({ k, v }: { k: string; v: string }) {
     </div>
   );
 }
+const videoRef = useRef<HTMLVideoElement>(null);
+const canvasRef = useRef<HTMLCanvasElement>(null);
+<video
+  ref={videoRef}
+  autoPlay
+  playsInline
+  className="w-full rounded-xl"
+/>
+
+<canvas
+  ref={canvasRef}
+  hidden
+/>
