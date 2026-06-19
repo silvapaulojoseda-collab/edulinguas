@@ -276,32 +276,3 @@ function Row({ k, v }: { k: string; v: string }) {
     </div>
   );
 }
-const videoRef = useRef<HTMLVideoElement>(null);
-const canvasRef = useRef<HTMLCanvasElement>(null);
-<video
-  ref={videoRef}
-  autoPlay
-  playsInline
-  className="w-full rounded-xl"
-/>
-
-<canvas
-  ref={canvasRef}
-  hidden
-/>
-useEffect(() => {
-  async function startCamera() {
-    const stream =
-      await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: "environment"
-        }
-      });
-
-    if (videoRef.current) {
-      videoRef.current.srcObject = stream;
-    }
-  }
-
-  startCamera();
-}, []);
