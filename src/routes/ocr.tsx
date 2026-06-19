@@ -289,3 +289,19 @@ const canvasRef = useRef<HTMLCanvasElement>(null);
   ref={canvasRef}
   hidden
 />
+useEffect(() => {
+  async function startCamera() {
+    const stream =
+      await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: "environment"
+        }
+      });
+
+    if (videoRef.current) {
+      videoRef.current.srcObject = stream;
+    }
+  }
+
+  startCamera();
+}, []);
