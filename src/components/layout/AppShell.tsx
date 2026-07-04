@@ -99,10 +99,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       <div className="m-3 p-3 rounded-xl glass">
         <div className="flex items-center gap-2 text-xs font-semibold text-ai">
-          <Sparkles className="size-3.5" /> Insights da semana
+          <Sparkles className="size-3.5" /> {escolaNome}
         </div>
         <p className="text-xs text-muted-foreground mt-1.5 leading-snug">
-          3 turmas com queda em <strong className="text-foreground">interpretação textual</strong>. Toque para ver plano de intervenção.
+          Seu papel atual: <strong className="text-foreground">{papelLabel}</strong>. Troque de escola em Configurações.
         </p>
       </div>
     </>
