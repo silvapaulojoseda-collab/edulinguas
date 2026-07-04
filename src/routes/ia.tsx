@@ -1,11 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/layout/AppShell";
 import { Sparkles, Send, FileDown, Lightbulb, Target, Loader2, RefreshCw } from "lucide-react";
-import { DESCRITORES } from "@/lib/seed";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
+import { useQuery } from "@tanstack/react-query";
 import { gerarParecer, perguntarIA } from "@/lib/ia.functions";
+import { getDashboardStats } from "@/lib/dashboard.functions";
+import { useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/ia")({
   head: () => ({
