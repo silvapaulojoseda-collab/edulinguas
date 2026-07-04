@@ -199,19 +199,25 @@ function IA() {
         <aside className="space-y-4">
           <div className="rounded-2xl border border-border bg-card p-5">
             <h3 className="font-display font-semibold">Descritores críticos</h3>
-            <ul className="mt-4 space-y-3">
-              {DESCRITORES.map((d) => (
-                <li key={d.code}>
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="font-mono font-semibold">{d.code} · {d.desc}</span>
-                    <span className={`font-bold ${d.media < 50 ? "text-destructive" : d.media < 65 ? "text-warning" : "text-success"}`}>{d.media}%</span>
-                  </div>
-                  <div className="mt-1.5 h-1.5 bg-muted rounded-full overflow-hidden">
-                    <div className={`h-full rounded-full ${d.media < 50 ? "bg-destructive" : d.media < 65 ? "bg-warning" : "bg-success"}`} style={{ width: `${d.media}%` }} />
-                  </div>
-                </li>
-              ))}
-            </ul>
+            {descritores.length === 0 ? (
+              <p className="mt-3 text-sm text-muted-foreground">
+                Ainda não há respostas processadas com descritores para analisar.
+              </p>
+            ) : (
+              <ul className="mt-4 space-y-3">
+                {descritores.map((d) => (
+                  <li key={d.code}>
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-mono font-semibold">{d.code}</span>
+                      <span className={`font-bold ${d.media < 50 ? "text-destructive" : d.media < 65 ? "text-warning" : "text-success"}`}>{d.media}%</span>
+                    </div>
+                    <div className="mt-1.5 h-1.5 bg-muted rounded-full overflow-hidden">
+                      <div className={`h-full rounded-full ${d.media < 50 ? "bg-destructive" : d.media < 65 ? "bg-warning" : "bg-success"}`} style={{ width: `${d.media}%` }} />
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
 
           <div className="rounded-2xl border border-border bg-card p-5">
