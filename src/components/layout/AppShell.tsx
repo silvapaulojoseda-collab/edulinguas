@@ -99,10 +99,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       <div className="m-3 p-3 rounded-xl glass">
         <div className="flex items-center gap-2 text-xs font-semibold text-ai">
-          <Sparkles className="size-3.5" /> Insights da semana
+          <Sparkles className="size-3.5" /> {escolaNome}
         </div>
         <p className="text-xs text-muted-foreground mt-1.5 leading-snug">
-          3 turmas com queda em <strong className="text-foreground">interpretação textual</strong>. Toque para ver plano de intervenção.
+          Seu papel atual: <strong className="text-foreground">{papelLabel}</strong>. Troque de escola em Configurações.
         </p>
       </div>
     </>
@@ -158,16 +158,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           >
             {dark ? <Sun className="size-4" /> : <Moon className="size-4" />}
           </button>
-          <button onClick={() => toast.info("3 notificações: OCR concluído, parecer IA pronto, 8 alertas")} className="size-10 grid place-items-center rounded-xl hover:bg-muted transition-colors relative">
+          <button onClick={() => toast.info("Notificações em tempo real em breve")} className="size-10 grid place-items-center rounded-xl hover:bg-muted transition-colors relative">
             <Bell className="size-4" />
-            <span className="absolute top-2.5 right-2.5 size-1.5 rounded-full bg-ai" />
           </button>
           <div className="flex items-center gap-2.5 pl-2 border-l border-border">
-            <div className="size-9 rounded-full bg-gradient-to-br from-primary to-ai grid place-items-center text-primary-foreground text-xs font-bold">
-              {user.iniciais}
+            <div className="size-9 rounded-full bg-gradient-to-br from-primary to-ai grid place-items-center text-primary-foreground text-xs font-bold overflow-hidden">
+              {user.avatar_url ? <img src={user.avatar_url} alt={user.nome} className="size-full object-cover" /> : (user.iniciais || "U")}
             </div>
             <div className="hidden sm:block">
-              <div className="text-xs font-semibold leading-tight">{user.nome}</div>
+              <div className="text-xs font-semibold leading-tight">{user.nome || "Usuário"}</div>
               <div className="text-[10px] text-muted-foreground">{papelLabel} · {escolaNome}</div>
             </div>
             <button

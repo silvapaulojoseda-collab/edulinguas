@@ -1,81 +1,47 @@
-# Auditoria EduLinguas AI — Plano de Execução por Fases
+# Auditoria & Estabilização — EduLinguas AI
 
-O escopo solicitado (17 áreas, ~80 funcionalidades) é equivalente a 4–6 semanas de trabalho de uma equipe. Não cabe em uma única iteração sem comprometer qualidade, segurança e estabilidade do que já existe. Proponho **fasear** a entrega para garantir que cada bloco saia funcional, testado e seguro, em vez de quebrar tudo de uma vez.
+Escopo grande demais para uma única rodada sem quebrar o que já funciona. Proposta de execução em **6 fases sequenciais**, cada uma entregue, testada e validada antes da próxima. Você aprova o plano e eu começo pela Fase 1 imediatamente.
 
-## Estado atual (auditoria rápida)
+## Fase 1 — Auditoria + Autenticação & Perfil dinâmico
+- Varredura completa: listar todos os mocks, nomes hardcoded, `localStorage` indevido, imports quebrados, rotas órfãs, dados fictícios em `data/students.json`, etc.
+- Auth: validar fluxos de login email/senha, signup, Google (broker Lovable), reset password, persistência de sessão, listener único em `__root.tsx`.
+- Perfil: salvar nome/avatar em `profiles`, refletir em Sidebar / Header / Dashboard / Configurações via `useAuth()`. Fallback "Usuário".
+- Escola ativa: garantir persistência em `profiles.escola_ativa_id` e troca instantânea.
+- Remover qualquer leitura de JSON local de alunos/turmas.
 
-Já está pronto:
-- Auth real (email/senha + Google via broker Lovable), `profiles`, `user_roles`, `app_role`, `has_role`, `is_member_of`, `is_staff_of`, `teaches_turma`
-- Tabelas: `escolas`, `turmas`, `alunos`, `avaliacoes`, `gabaritos`, `lotes_ocr`, `cartoes_ocr`, `respostas`, `pareceres_ia`, `notificacoes`, `professor_turmas` — todas com RLS por escola/role (sem `USING (true)`)
-- Bucket privado `cartoes-resposta`
-- Server functions: OCR (`criarLoteOcr`, `getStatusLote`, processamento async com QR via `jsqr` + visão Gemini), IA (`gerarParecer` GPT-5.2, `perguntarIA`), escolas (`criarEscola`, `listarMinhasEscolas`, `ativarEscola`)
-- Layout responsivo (mobile drawer + bottom nav + sidebar desktop)
-- Telas funcionais: dashboard, alunos, avaliações, OCR, IA, configurações
+## Fase 2 — Banco, RLS e integridade
+- Auditoria de FKs, índices, constraints, RLS em todas as 17 tabelas.
+- Migration corretiva: faltantes de `ON DELETE`, índices em colunas de filtro (`alunos.turma_id`, `respostas.cartao_id`, etc.), policies inconsistentes.
+- Linter Supabase → resolver findings críticos.
+- Isolamento por escola validado em cada policy via `can_access_school`.
 
-Faltando / parcial:
-- Convites de professor, audit logs, dashboard executivo agregado multi-escola
-- CRUD completo de gabaritos com import/export Excel
-- Geração de planilhas com QR (PDF/Excel) para impressão
-- Buckets adicionais (`reports`, `school-assets`, `qr-templates`)
-- Realtime nas notificações
-- Exportações PDF/Excel institucionais
-- Testes automatizados
+## Fase 3 — CRUDs (Alunos, Turmas, Cursos, Professores, Avaliações)
+- Revisar cada server fn: validação Zod, tratamento de erro, mensagens em PT-BR, toasts consistentes.
+- Eliminar duplicidades (matrícula), validar relacionamentos, prevenir órfãos via FK `ON DELETE`.
+- React Query: invalidations corretas em todas as mutations.
 
-## Fases propostas
+## Fase 4 — Gabaritos + Avaliações (módulo completo)
+- CRUD de gabaritos, import/export Excel (xlsx), associação com avaliação.
+- Geração de cartões-resposta com QR assinado (HMAC já existe em `qr.server.ts`).
+- PDF de cartões (jsPDF) — gerar lote por turma/avaliação.
+- Validação: ordem de questões, alternativas A–E, descritor opcional.
 
-### Fase 1 — Fundação de segurança e dados (1 iteração)
-- Tabelas novas: `teacher_invites`, `invite_logs`, `audit_logs`, `user_escolas` (view sobre `user_roles`)
-- Função SQL `can_access_school()`
-- Trigger genérica de `updated_at` nas tabelas que faltam
-- Índices de performance (`alunos.escola_id`, `cartoes_ocr.lote_id`, `respostas.cartao_id`, etc.)
-- Buckets: `reports` (privado), `school-assets` (privado), `qr-templates` (privado) — com RLS por `escola_id` no path
-- Revisão das policies existentes (já estão corretas, mas confirmar gaps de UPDATE/DELETE em `notificacoes` e `escolas`)
+## Fase 5 — OCR & Correção automática
+- Revisar pipeline em `ocr.functions.ts` + `ocr.server.ts`.
+- Realtime status do lote (Supabase Realtime no `lotes_ocr`).
+- Tratamento de QR inválido, dupla marcação, aluno não encontrado.
+- Cálculo de notas → persistir em `respostas` + agregado.
 
-### Fase 2 — Convite de professores (1 iteração)
-- Server fns: `convidarProfessor`, `aceitarConvite`, `reenviarConvite`, `cancelarConvite`, `listarConvites`
-- Token JWT assinado + expiração 7 dias
-- Email via Lovable Cloud Emails (requer setup de domínio — vou pedir confirmação)
-- Tela `/configuracoes` → aba "Professores": listar/convidar/revogar
-- Rota pública `/convite/$token` para aceitar
-- Logs em `invite_logs`
+## Fase 6 — Relatórios, UX e polish final
+- Relatórios reais (turma, aluno, avaliação, descritor) com exportação CSV e PDF.
+- Loading states, empty states, toasts, responsividade mobile (485px atual).
+- Remoção final de mocks remanescentes.
+- Checklist de testes manual + relatório final com itens 1–7 que você pediu.
 
-### Fase 3 — Gabaritos + QR + Planilhas (1 iteração)
-- CRUD `/gabaritos` (criar, editar, duplicar, excluir, importar Excel via SheetJS, exportar)
-- Geração de QR por aluno (`qrcode` lib) contendo `{escolaId, avaliacaoId, alunoId, hash HMAC, v:1}`
-- Validação HMAC no pipeline OCR (rejeita QR de outra escola)
-- Geração de PDF de planilha de resposta (pdf-lib) com QR + cabeçalho institucional
-- Export Excel da lista de alunos × avaliação
+## Observações técnicas
+- Sem mexer em `src/integrations/supabase/*` auto-gerados.
+- Toda mudança de schema via `supabase--migration` (com GRANTs).
+- `SUPABASE_SERVICE_ROLE_KEY` não é acessível no Lovable Cloud — `qr.server.ts` usa essa chave para HMAC; vou trocar para um segredo dedicado `QR_HMAC_SECRET` na Fase 4 para não quebrar caso a chave rotacione.
 
-### Fase 4 — OCR avançado + IA com auditoria (1 iteração)
-- Pipeline OCR: detecção de dupla marcação, questões em branco, score de confiança, motivo de erro padronizado
-- Métricas em `audit_logs`: tempo de processamento por cartão, taxa de sucesso por lote
-- IA: versionar prompts em `pareceres_ia.dados.prompt_version`, registrar modelo/tempo/tokens estimados
-- Tratamento explícito 429/402 já existe — adicionar retry com backoff
-
-### Fase 5 — Dashboard executivo + Notificações realtime + Exports (1 iteração)
-- Dashboard `/relatorios` com KPIs agregados (média geral, por escola, por turma, descritores críticos, ranking), filtros período/escola/turma/avaliação
-- Realtime em `notificacoes` (`ALTER PUBLICATION supabase_realtime ADD TABLE`)
-- Triggers de notificação: OCR concluído/erro, parecer gerado, convite aceito
-- Exportações PDF institucional (pdf-lib) + Excel + CSV com logo
-
-### Fase 6 — Observabilidade + Testes + Polimento UX (1 iteração)
-- Skeleton loaders, estados vazios e mensagens de erro padronizadas em todas as telas
-- Captura de erros via error boundaries em todas as rotas com loader
-- Testes Vitest: server fns (escola, ocr, ia, convite), validação Zod, RLS via SQL
-- Relatório final de maturidade
-
-## Diretrizes técnicas
-
-- Tudo em `createServerFn` + `requireSupabaseAuth` (sem Edge Functions novas)
-- Validação Zod em 100% das entradas
-- Sem `USING (true)` em nenhuma policy nova
-- Sem mocks, sem dados fictícios
-- Code splits por rota, sem regressão no que já está funcional
-
-## O que preciso confirmar para começar
-
-1. **Por onde começar?** Sugiro Fase 1 + Fase 2 numa só rodada (são as fundações; sem isso, audit/convites não existem). As demais fases viriam em iterações seguintes a seu pedido.
-2. **Email para convites**: usar domínio Lovable padrão (`@updates.lovable.dev`) ou configurar domínio próprio agora? O segundo exige DNS verificado.
-3. **Posso seguir com Fase 1 + Fase 2 agora?**
-
-Se aprovar este plano, começo já pelas migrations da Fase 1 e implemento o fluxo de convites na sequência.
+## Pergunta antes de começar
+Posso começar pela **Fase 1** agora? Ou prefere reordenar (ex.: priorizar Gabaritos/OCR antes de CRUDs)?

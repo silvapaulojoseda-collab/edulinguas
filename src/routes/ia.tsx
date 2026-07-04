@@ -1,11 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/layout/AppShell";
 import { Sparkles, Send, FileDown, Lightbulb, Target, Loader2, RefreshCw } from "lucide-react";
-import { DESCRITORES } from "@/lib/seed";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
+import { useQuery } from "@tanstack/react-query";
 import { gerarParecer, perguntarIA } from "@/lib/ia.functions";
+import { getDashboardStats } from "@/lib/dashboard.functions";
+import { useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/ia")({
   head: () => ({
@@ -20,8 +22,11 @@ export const Route = createFileRoute("/ia")({
 type Msg = { role: "user" | "assistant"; content: string };
 
 function IA() {
+  const { user } = useAuth();
+  const escolaId = user?.escolaAtiva?.id ?? null;
   const gerar = useServerFn(gerarParecer);
   const perguntar = useServerFn(perguntarIA);
+  const getStats = useServerFn(getDashboardStats);
   const [gerando, setGerando] = useState(false);
   const [parecer, setParecer] = useState<{
     diagnostico: string;
@@ -33,6 +38,13 @@ function IA() {
   const [pergunta, setPergunta] = useState("");
   const [historico, setHistorico] = useState<Msg[]>([]);
   const [enviando, setEnviando] = useState(false);
+
+  const { data: stats } = useQuery({
+    queryKey: ["dashboard-stats", escolaId],
+    queryFn: () => getStats({ data: { escolaId: escolaId! } }),
+    enabled: !!escolaId,
+  });
+  const descritores = stats?.descritores ?? [];
 
   async function handleGerar() {
     setGerando(true);
@@ -187,19 +199,25 @@ function IA() {
         <aside className="space-y-4">
           <div className="rounded-2xl border border-border bg-card p-5">
             <h3 className="font-display font-semibold">Descritores críticos</h3>
-            <ul className="mt-4 space-y-3">
-              {DESCRITORES.map((d) => (
-                <li key={d.code}>
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="font-mono font-semibold">{d.code} · {d.desc}</span>
-                    <span className={`font-bold ${d.media < 50 ? "text-destructive" : d.media < 65 ? "text-warning" : "text-success"}`}>{d.media}%</span>
-                  </div>
-                  <div className="mt-1.5 h-1.5 bg-muted rounded-full overflow-hidden">
-                    <div className={`h-full rounded-full ${d.media < 50 ? "bg-destructive" : d.media < 65 ? "bg-warning" : "bg-success"}`} style={{ width: `${d.media}%` }} />
-                  </div>
-                </li>
-              ))}
-            </ul>
+            {descritores.length === 0 ? (
+              <p className="mt-3 text-sm text-muted-foreground">
+                Ainda não há respostas processadas com descritores para analisar.
+              </p>
+            ) : (
+              <ul className="mt-4 space-y-3">
+                {descritores.map((d) => (
+                  <li key={d.code}>
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-mono font-semibold">{d.code}</span>
+                      <span className={`font-bold ${d.media < 50 ? "text-destructive" : d.media < 65 ? "text-warning" : "text-success"}`}>{d.media}%</span>
+                    </div>
+                    <div className="mt-1.5 h-1.5 bg-muted rounded-full overflow-hidden">
+                      <div className={`h-full rounded-full ${d.media < 50 ? "bg-destructive" : d.media < 65 ? "bg-warning" : "bg-success"}`} style={{ width: `${d.media}%` }} />
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
 
           <div className="rounded-2xl border border-border bg-card p-5">
