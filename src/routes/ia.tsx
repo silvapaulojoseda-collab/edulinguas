@@ -22,8 +22,11 @@ export const Route = createFileRoute("/ia")({
 type Msg = { role: "user" | "assistant"; content: string };
 
 function IA() {
+  const { user } = useAuth();
+  const escolaId = user?.escolaAtiva?.id ?? null;
   const gerar = useServerFn(gerarParecer);
   const perguntar = useServerFn(perguntarIA);
+  const getStats = useServerFn(getDashboardStats);
   const [gerando, setGerando] = useState(false);
   const [parecer, setParecer] = useState<{
     diagnostico: string;
@@ -35,6 +38,13 @@ function IA() {
   const [pergunta, setPergunta] = useState("");
   const [historico, setHistorico] = useState<Msg[]>([]);
   const [enviando, setEnviando] = useState(false);
+
+  const { data: stats } = useQuery({
+    queryKey: ["dashboard-stats", escolaId],
+    queryFn: () => getStats({ data: { escolaId: escolaId! } }),
+    enabled: !!escolaId,
+  });
+  const descritores = stats?.descritores ?? [];
 
   async function handleGerar() {
     setGerando(true);
